@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "977184688949",
+    "project_id": "pinpoint-81061",
+    "storage_bucket": "pinpoint-81061.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977184688949:android:e1b7855619599927a51a7c",
+        "android_client_info": {
+          "package_name": "com.pepeta.pinpoint"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "977184688949-r29mble0illokvcacldvk317va07bic6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCm66w9HZ6BWaMlGq4e7ebOg20CmS15EtU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "977184688949-r29mble0illokvcacldvk317va07bic6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

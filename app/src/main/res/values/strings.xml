@@ -1,0 +1,53 @@
+<resources>
+    <string name="app_name">PinPoint</string>
+    <string name="current_location">Current Location</string>
+    <string name="locations">Locations</string>
+    <string name="favourites">Favourites</string>
+    <string name="favourite">Favourite</string>
+    <string name="favourited">Favourited</string>
+    <string name="settings">Settings</string>
+    <string name="preferred_unit_type">Preferred Unit Type</string>
+    <string name="preferred_landmark">Preferred Landmark</string>
+    <string name="update_settings">Update Settings</string>
+    <string name="location_name">Location name</string>
+
+    <string-array name="unit_types">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
+    <string-array name="preferred_landmark">
+        <item>Natural</item>
+        <item>Purpose built/Man-made</item>
+        <item>Sport</item>
+        <item>Events</item>
+    </string-array>
+
+    <!--    Account strings-->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="fullname">Fullname</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="login_prompt">Already have an account? Login</string>
+    <string name="register_prompt">Don\'t have an account? Register</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+<!--PASSWORD VALIDATION ERROR MESSAGES-->
+    <string name="password_numeric_error">Password must have a minimum of 1 numeric character [0\-9]</string>
+    <string name="password_lowercase_error">Password must have a minimum of 1 lowercase character [a\-z]</string>
+    <string name="password_uppercase_error">Password must have a minimum of 1 uppercase character [A\-Z]</string>
+    <string name="password_special_char_error">password must have a minimum of 1 special character[@#$%^&amp;+=]</string>
+    <string name="password_length_error">password must have a min. of 6 characters</string>
+    <!--EMAIL VALIDATION ERROR MESSAGES-->
+    <string name="email_required_error">Email is required.</string>
+    <string name="password_required_error">Password is required.</string>
+
+</resources>
