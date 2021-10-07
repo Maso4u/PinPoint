@@ -1,6 +1,9 @@
 package com.pepeta.pinpoint;
 
+import static android.content.ContentValues.TAG;
+import static com.pepeta.pinpoint.Constants.DEFAULT_ZOOM;
 import static com.pepeta.pinpoint.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,23 +12,30 @@ import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.pepeta.pinpoint.databinding.FragmentMapsBinding;
 
 public class MapsFragment extends Fragment {
     FragmentMapsBinding binding;
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    FusedLocationProviderClient mFusedLocationProviderClient;
 
+    private OnMapReadyCallback callback = new OnMapReadyCallback() {
         /**
          * Manipulates the map once available.
          * This callback is triggered when the map is ready to be used.
@@ -37,12 +47,38 @@ public class MapsFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            LatLng sydney = new LatLng(-34, 151);
+            /*LatLng sydney = new LatLng(-34, 151);
             googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            googleMap.setMyLocationEnabled(true);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));*/
+            mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+            try {
+                Task location = mFusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "getDeviceLocation: found location");
+                            Location currentLocation = (Location) task.getResult();
+                            googleMap.setMyLocationEnabled(true);
+                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM, googleMap);
+                        } else {
+                            Log.d(TAG, "getDeviceLocation: location null");
+                            showMessageErrorSnackBar(binding.locationsFragmentLayout, "location null", true);
+                        }
+                    }
+                });
+
+            }catch (SecurityException e){
+                Log.e(TAG,"getDeviceLocation: SecurityException: "+e.getMessage());
+            }
+
         }
     };
+
+    private void moveCamera(LatLng latLng, float zoom, GoogleMap googleMap) {
+        Log.d(TAG,"moveCamera: moving the camera to: lat: "+latLng.latitude+", lng: "+latLng.longitude);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+    }
 
     @Nullable
     @Override
@@ -69,7 +105,7 @@ public class MapsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapView);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
