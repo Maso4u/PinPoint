@@ -1,32 +1,41 @@
 package com.pepeta.pinpoint;
 
-import static com.pepeta.pinpoint.FunctionalUtil.removeErrorMessage;
+import static android.content.ContentValues.TAG;
+import static com.pepeta.pinpoint.Constants.COARSE_LOCATION;
+import static com.pepeta.pinpoint.Constants.ERROR_DIALOG_REQUEST;
+import static com.pepeta.pinpoint.Constants.FINE_LOCATION;
+import static com.pepeta.pinpoint.Constants.LOCATION_PERMISSION_REQUEST_CODE;
+import static com.pepeta.pinpoint.Constants.PERMISSION_REQUEST_ENABLE_GPS;
 import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
 import static com.pepeta.pinpoint.FunctionalUtil.styleSpan;
-import static com.pepeta.pinpoint.FunctionalUtil.validatePassword;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Typeface;
-import android.graphics.fonts.FontFamily;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextPaint;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
-import android.view.View;
-import android.widget.Toast;
+import android.provider.Settings;
+import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApiNotAvailableException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,8 +51,24 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference dbUsers;
     private Activity activity;
     User user = new User();
+    private boolean mLocationPermissionGranted = false;
 
-    public LoginActivity() {
+    ActivityResultLauncher<Intent> enableGpsLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == PERMISSION_REQUEST_ENABLE_GPS){
+                        if (mLocationPermissionGranted){
+                            navigateToMainActivity();
+                        }else getLocationPermission();
+                    }
+                }
+            });
+
+    private void navigateToMainActivity() {
+        Intent intent = new Intent(binding.getRoot().getContext(), MainActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -54,27 +79,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         styleSpan(binding.tvRegisterPrompt,RegisterActivity.class);
 
-        /*SpannableString ss = new SpannableString(getString(R.string.register_prompt));
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(@NonNull View widget) {
-                Toast.makeText(getBaseContext(), "weeeh", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getBaseContext(),RegisterActivity.class));
-            }
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setColor(getColor(R.color.green));
-                ds.setUnderlineText(false);
-            }
-        };
-
-        ss.setSpan(clickableSpan,23, 31, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        ss.setSpan(new TypefaceSpan(String.valueOf(R.font.poppins_medium)),23,30,Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
-        binding.tvRegisterPrompt.setText(ss);
-        binding.tvRegisterPrompt.setMovementMethod(LinkMovementMethod.getInstance());*/
-
         mAuth = FirebaseAuth.getInstance();
         binding.btnLogin.setOnClickListener(v->{
             database =FirebaseDatabase.getInstance();
@@ -82,6 +86,16 @@ public class LoginActivity extends AppCompatActivity {
             dbUsers= dbReference.child(Constants.NODE_USERS);
             loginUser();
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(checkMapServices()){
+            if (mLocationPermissionGranted){
+                navigateToMainActivity();
+            }else getLocationPermission();
+        }
     }
 
     private void loginUser() {
@@ -95,14 +109,28 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         FirebaseUser firebaseUser = task.getResult().getUser();
                         user.setId(firebaseUser.getUid());
-                        Intent intent = new Intent(binding.getRoot().getContext(),MainActivity.class);
-                        startActivity(intent);
+
+                        if(checkMapServices()){
+                            if (mLocationPermissionGranted){
+                                navigateToMainActivity();
+                            }else getLocationPermission();
+                        }
+
                     }else{
                         showMessageErrorSnackBar(binding.loginLayout,task.getException().getMessage(),true);
                     }
                 }
             });
         }
+    }
+
+    private boolean checkMapServices() {
+        if (isServiceOK()){
+            if(isMapsEnabled()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -123,5 +151,97 @@ public class LoginActivity extends AppCompatActivity {
         } else return true;
     }
 
+    /**
+     * Determine if user has google play services
+     * @return
+     */
+    public boolean isServiceOK(){
+        Log.d(TAG, "isServiceOK: checking google service version");
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LoginActivity.this);
+        if (available== ConnectionResult.SUCCESS){
+            Log.d(TAG,"isServiceOK: Google Play Service working");
+            return true;
+        }else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+            Log.d(TAG, "isServiceOK: an error occured but we can fix it");
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(LoginActivity.this,available, ERROR_DIALOG_REQUEST);
+            dialog.show();
+        }else{
+            showMessageErrorSnackBar(binding.loginLayout,"You can't make map requests",true);
+        }
+        return false;
+    }
 
+    /**
+     * Makes permission requests for the location of the device.
+     * Result of the permission request is handled by onRequestPermissionResult
+     */
+    private void getLocationPermission(){
+        String[] permissions = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        };
+
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(),COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+                mLocationPermissionGranted=true;
+                navigateToMainActivity();
+            }else{
+                ActivityCompat.requestPermissions(this,permissions,LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        }else{
+            ActivityCompat.requestPermissions(this,permissions,LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    /**
+     * Determine whether GPS is enabled
+     * @return
+     */
+    public boolean isMapsEnabled(){
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            buildAlertMessageNoGps();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * builds alert to for Gps to be enabled
+     */
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent enableGpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        enableGpsLauncher.launch(enableGpsIntent);
+//                        startActivityForResult(enableGpsIntent,PERMISSION_REQUEST_ENABLE_GPS);
+                    }
+                });
+        final  AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        mLocationPermissionGranted=false;
+        switch (requestCode){
+            case LOCATION_PERMISSION_REQUEST_CODE:{
+                if (grantResults.length>0){
+                    for (int grantResult: grantResults) {
+                        if (grantResult!=PackageManager.PERMISSION_GRANTED){
+                            mLocationPermissionGranted=false;
+                            return;
+                        }
+                    }
+                    mLocationPermissionGranted=true;
+                    //initial
+                }
+            }
+        }
+    }
 }

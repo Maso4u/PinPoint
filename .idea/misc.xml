@@ -3,15 +3,23 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/favourites_selector.xml" value="0.1648148148148148" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.10364583333333334" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/ic_location_icon.xml" value="0.20989583333333334" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/locations_selector.xml" value="0.1648148148148148" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/main_button_style.xml" value="0.31640625" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/settings_button.xml" value="0.20989583333333334" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/settings_button_style.xml" value="0.20989583333333334" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/drawable/splash_image.xml" value="0.20989583333333334" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/activity_login.xml" value="0.33" />
-        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/activity_main.xml" value="0.18020833333333333" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/activity_main.xml" value="0.26540284360189575" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/activity_main2.xml" value="0.1" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/activity_register.xml" value="0.33" />
         <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/content_login.xml" value="0.19375" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/fragment_favourites.xml" value="0.19375" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/fragment_main.xml" value="0.1" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/layout/fragment_maps.xml" value="0.15555555555555556" />
+        <entry key="..\:/or Files/school/3RD YEAR/2nd Sem/Open Source Coding (Intermediate)/POE2021/OPSC7312_TASK 2/PinPoint/app/src/main/res/menu/bottom_menu.xml" value="0.26744186046511625" />
       </map>
     </option>
   </component>
