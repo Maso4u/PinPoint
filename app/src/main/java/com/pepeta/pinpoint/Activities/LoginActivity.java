@@ -1,4 +1,4 @@
-package com.pepeta.pinpoint;
+package com.pepeta.pinpoint.Activities;
 
 import static android.content.ContentValues.TAG;
 import static com.pepeta.pinpoint.Constants.COARSE_LOCATION;
@@ -35,12 +35,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApiNotAvailableException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.pepeta.pinpoint.Constants;
+import com.pepeta.pinpoint.R;
+import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
@@ -88,15 +90,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
-        if(checkMapServices()){
-            if (mLocationPermissionGranted){
-                navigateToMainActivity();
-            }else getLocationPermission();
+        if (user.getId()!=null){
+            if(checkMapServices()){
+                if (mLocationPermissionGranted){
+                    navigateToMainActivity();
+                }else getLocationPermission();
+            }
         }
-    }
+    }*/
 
     private void loginUser() {
         String email = binding.etEmail.getText().toString().trim();

@@ -1,4 +1,4 @@
-package com.pepeta.pinpoint.Model;
+package com.pepeta.pinpoint.Model.NearByPlaces;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

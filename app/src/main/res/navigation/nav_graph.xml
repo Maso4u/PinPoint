@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/locationsFragment"
-        android:name="com.pepeta.pinpoint.MapsFragment"
+        android:name="com.pepeta.pinpoint.Fragments.MapsFragment"
         android:label="fragment_maps"
         tools:layout="@layout/fragment_maps" />
     <fragment
         android:id="@+id/favouritesFragment"
-        android:name="com.pepeta.pinpoint.FavouritesFragment"
+        android:name="com.pepeta.pinpoint.Fragments.FavouritesFragment"
         android:label="fragment_favourites"
         tools:layout="@layout/fragment_favourites" />
 </navigation>

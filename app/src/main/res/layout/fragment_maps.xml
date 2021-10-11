@@ -12,24 +12,25 @@ xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/locationsFragmentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsFragment"
+    tools:context=".Fragments.MapsFragment"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/placeInfoFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="30">
+        android:layout_weight="40"
+        android:visibility="gone"
+        android:name="com.pepeta.pinpoint.Fragments.PlaceInfoWindowFragment"/>
 
-    </LinearLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="70">
+        android:layout_weight="60">
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </RelativeLayout>
-
 
 </LinearLayout>

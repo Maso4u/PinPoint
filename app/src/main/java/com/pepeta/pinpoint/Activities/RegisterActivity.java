@@ -1,4 +1,4 @@
-package com.pepeta.pinpoint;
+package com.pepeta.pinpoint.Activities;
 
 import static com.pepeta.pinpoint.FunctionalUtil.removeErrorMessage;
 import static com.pepeta.pinpoint.FunctionalUtil.clearFields;
@@ -8,24 +8,22 @@ import static com.pepeta.pinpoint.FunctionalUtil.validatePassword;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
-import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.pepeta.pinpoint.FunctionalUtil;
+import com.pepeta.pinpoint.R;
+import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityRegisterBinding;
 import com.pepeta.pinpoint.Constants;
-import java.util.List;
 
 public class RegisterActivity extends AppCompatActivity{
     ActivityRegisterBinding binding;

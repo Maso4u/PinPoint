@@ -1,22 +1,24 @@
 package com.pepeta.pinpoint.WebServices;
 
-import com.pepeta.pinpoint.Model.GooglePlacesModel;
-
-import java.util.List;
+import com.pepeta.pinpoint.Model.NearByPlaces.GoogleNearbyPlacesModel;
+import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
+import com.pepeta.pinpoint.Model.PlaceDetails.PlaceDetailsRootModel;
 
 import io.reactivex.Observable;
-import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
-import retrofit2.http.Url;
 
 public interface RetrofitAPI {
-    @GET("/maps/api/place/nearbysearch/json?location")
-    Observable<GooglePlacesModel> getNearByPlaces(
+    @GET("/maps/api/place/nearbysearch/json")
+    Observable<GoogleNearbyPlacesModel> getNearByPlaces(
             @Query("location") String location,
-            @Query("radius") int radius,
+            @Query("radius") Integer radius,
             @Query("type") String type,
-            @Query("apikey") String apiKey
+            @Query("key") String apiKey
+    );
+    @GET("/maps/api/place/details/json")
+    Observable<PlaceDetailsRootModel> getPlaceDetails(
+            @Query("place_id") String placeId,
+            @Query("key") String apiKey
     );
 }

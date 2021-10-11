@@ -1,4 +1,4 @@
-package com.pepeta.pinpoint;
+package com.pepeta.pinpoint.Activities;
 
 import static android.content.ContentValues.TAG;
 import android.Manifest;
@@ -13,6 +13,8 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
+
+import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {

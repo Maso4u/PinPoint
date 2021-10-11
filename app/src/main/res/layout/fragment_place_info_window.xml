@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:padding="@dimen/place_window_padding">
+    android:orientation="vertical"
+    android:padding="@dimen/place_window_padding"
+    tools:context=".Fragments.PlaceInfoWindowFragment">
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -19,35 +22,50 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@id/btnAddPlaceToFavourite"
+                android:layout_alignParentStart="true"
                 android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="10dp"
+                android:layout_toStartOf="@+id/btnAddPlaceToFavourite"
                 android:fontFamily="@font/poppins_medium"
                 android:text="@string/locations"
                 android:textColor="@color/text_black"
-                android:textSize="@dimen/subheading_text_size"/>
+                android:textSize="@dimen/subheading_text_size"
+                android:textAlignment="center"/>
 
             <ToggleButton
                 android:id="@+id/btnAddPlaceToFavourite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="2dp"
+                android:layout_marginBottom="2dp"
                 android:background="@drawable/btn_favourite_place_bg_selector"
                 android:drawableStart="@drawable/place_favourited_selector"
                 android:elevation="10dp"
                 android:paddingHorizontal="20dp"
-                android:layout_margin="2dp"
+                android:textAllCaps="false"
                 android:textOff="@string/favourite"
-                android:textOn="@string/favourited"
-                android:textAllCaps="false"/>
+                android:textOn="@string/favourited"/>
         </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/place_property_margin">
+
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_location"/>
+                android:contentDescription="@string/marker_icon"
+                android:src="@drawable/ic_location" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -59,7 +77,7 @@
                     android:fontFamily="@font/poppins_medium"
                     android:text="@string/address"
                     android:textColor="@color/text_black"
-                    android:textSize="@dimen/normal_text_size"/>
+                    android:textSize="@dimen/normal_text_size" />
 
                 <TextView
                     android:id="@+id/tvPlaceAddress"
@@ -70,17 +88,23 @@
                     android:text="@string/address"
                     android:textColor="@color/text_black"
                     android:textSize="@dimen/normal_text_size" />
+
             </RelativeLayout>
+
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/place_property_margin">
+
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_website"/>
+                android:contentDescription="@string/globe_icon"
+                android:src="@drawable/ic_website" />
+
             <TextView
                 android:id="@+id/tvPlaceWebsiteUrl"
                 android:layout_width="wrap_content"
@@ -89,21 +113,79 @@
                 android:text="@string/address"
                 android:textColor="@color/green"
                 android:textSize="@dimen/normal_text_size"
-                android:layout_below="@id/tvPlaceAddressTitle"/>
+                android:clickable="true"
+                android:maxLines="1"/>
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/place_property_margin">
+
+            <TextView
+                android:id="@+id/tvContactNumberLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/contact_number_label_text"
+                android:textColor="@color/text_black"
+                android:textSize="@dimen/normal_text_size" />
+
+            <TextView
+                android:id="@+id/tvContactNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_black"
+                android:textSize="@dimen/normal_text_size" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/place_property_margin">
+
+            <TextView
+                android:id="@+id/tvRatingLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/rating_label_text"
+                android:textColor="@color/text_black"
+                android:textSize="@dimen/normal_text_size" />
+
+            <TextView
+                android:id="@+id/tvRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_black"
+                android:textSize="@dimen/normal_text_size" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/place_property_margin">
+
+            <TextView
+                android:id="@+id/tvDistanceTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/distance_label_text"
+                android:textColor="@color/text_black"
+                android:textSize="@dimen/normal_text_size" />
+
             <TextView
                 android:id="@+id/tvDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:text="Distance: 23km"
                 android:textColor="@color/text_black"
-                android:textSize="@dimen/normal_text_size"
-                android:layout_below="@id/tvPlaceAddressTitle"/>
+                android:textSize="@dimen/normal_text_size" />
         </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>

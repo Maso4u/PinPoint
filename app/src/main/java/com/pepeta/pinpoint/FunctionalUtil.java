@@ -1,13 +1,12 @@
 package com.pepeta.pinpoint;
 
 import static androidx.core.content.ContextCompat.getColor;
-import static androidx.core.content.ContextCompat.startActivity;
 
 import static com.pepeta.pinpoint.R.color.*;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -15,13 +14,13 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.pepeta.pinpoint.Activities.LoginActivity;
+import com.pepeta.pinpoint.Activities.RegisterActivity;
 
 public class FunctionalUtil {
 

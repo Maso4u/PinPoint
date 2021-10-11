@@ -1,38 +1,22 @@
-package com.pepeta.pinpoint;
+package com.pepeta.pinpoint.Model.NearByPlaces;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.pepeta.pinpoint.Model.GeometryModel;
-import com.pepeta.pinpoint.Model.OpeningHoursModel;
-import com.pepeta.pinpoint.Model.PhotoModel;
-import com.pepeta.pinpoint.Model.PlusCodeModel;
 
 import java.util.List;
 
-public class GooglePlaceModel {
+public class GoogleNearbyPlaceModel {
     @Expose
     private String businessStatus;
     @SerializedName("geometry")
     @Expose
     private GeometryModel geometry;
-    @SerializedName("icon")
-    @Expose
-    private String icon;
-    @SerializedName("icon_background_color")
-    @Expose
-    private String iconBackgroundColor;
-    @SerializedName("icon_mask_base_uri")
-    @Expose
-    private String iconMaskBaseUri;
     @SerializedName("name")
     @Expose
     private String name;
     @SerializedName("opening_hours")
     @Expose
     private OpeningHoursModel openingHours;
-    @SerializedName("photos")
-    @Expose
-    private List<PhotoModel> photos = null;
     @SerializedName("place_id")
     @Expose
     private String placeId;
@@ -48,15 +32,9 @@ public class GooglePlaceModel {
     @SerializedName("scope")
     @Expose
     private String scope;
-    @SerializedName("types")
-    @Expose
-    private List<String> types = null;
     @SerializedName("user_ratings_total")
     @Expose
     private Integer userRatingsTotal;
-    @SerializedName("vicinity")
-    @Expose
-    private String vicinity;
 
     public String getBusinessStatus() {
         return businessStatus;
@@ -74,30 +52,6 @@ public class GooglePlaceModel {
         this.geometry = geometry;
     }
 
-    public String getIcon() {
-        return icon;
-    }
-
-    public void setIcon(String icon) {
-        this.icon = icon;
-    }
-
-    public String getIconBackgroundColor() {
-        return iconBackgroundColor;
-    }
-
-    public void setIconBackgroundColor(String iconBackgroundColor) {
-        this.iconBackgroundColor = iconBackgroundColor;
-    }
-
-    public String getIconMaskBaseUri() {
-        return iconMaskBaseUri;
-    }
-
-    public void setIconMaskBaseUri(String iconMaskBaseUri) {
-        this.iconMaskBaseUri = iconMaskBaseUri;
-    }
-
     public String getName() {
         return name;
     }
@@ -113,15 +67,6 @@ public class GooglePlaceModel {
     public void setOpeningHours(OpeningHoursModel openingHours) {
         this.openingHours = openingHours;
     }
-
-    public List<PhotoModel> getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(List<PhotoModel> photos) {
-        this.photos = photos;
-    }
-
     public String getPlaceId() {
         return placeId;
     }
@@ -162,14 +107,6 @@ public class GooglePlaceModel {
         this.scope = scope;
     }
 
-    public List<String> getTypes() {
-        return types;
-    }
-
-    public void setTypes(List<String> types) {
-        this.types = types;
-    }
-
     public Integer getUserRatingsTotal() {
         return userRatingsTotal;
     }
@@ -178,11 +115,4 @@ public class GooglePlaceModel {
         this.userRatingsTotal = userRatingsTotal;
     }
 
-    public String getVicinity() {
-        return vicinity;
-    }
-
-    public void setVicinity(String vicinity) {
-        this.vicinity = vicinity;
-    }
 }

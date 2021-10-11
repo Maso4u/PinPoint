@@ -53,4 +53,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="address">Address</string>
+    <string name="marker_icon">marker icon</string>
+    <string name="globe_icon">globe icon for website</string>
+    <string name="rating_label_text">Rating: </string>
+    <string name="distance_label_text">Distance: </string>
+    <string name="contact_number_label_text">Contact Number: </string>
 </resources>

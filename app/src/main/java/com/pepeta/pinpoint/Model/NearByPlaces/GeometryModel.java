@@ -1,6 +1,4 @@
-package com.pepeta.pinpoint.Model;
-
-import android.location.Location;
+package com.pepeta.pinpoint.Model.NearByPlaces;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

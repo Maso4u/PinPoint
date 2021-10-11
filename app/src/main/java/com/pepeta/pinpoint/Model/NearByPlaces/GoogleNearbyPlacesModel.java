@@ -1,12 +1,11 @@
-package com.pepeta.pinpoint.Model;
+package com.pepeta.pinpoint.Model.NearByPlaces;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.pepeta.pinpoint.GooglePlaceModel;
 
 import java.util.List;
 
-public class GooglePlacesModel {
+public class GoogleNearbyPlacesModel {
 
     @SerializedName("html_attributions")
     @Expose
@@ -16,7 +15,7 @@ public class GooglePlacesModel {
     private String nextPageToken;
     @SerializedName("results")
     @Expose
-    private List<GooglePlaceModel> placeModels = null;
+    private List<GoogleNearbyPlaceModel> placeModels = null;
     @SerializedName("status")
     @Expose
     private String status;
@@ -37,11 +36,11 @@ public class GooglePlacesModel {
         this.nextPageToken = nextPageToken;
     }
 
-    public List<GooglePlaceModel> getPlaceModels() {
+    public List<GoogleNearbyPlaceModel> getPlaceModels() {
         return placeModels;
     }
 
-    public void setPlaceModels(List<GooglePlaceModel> placeModels) {
+    public void setPlaceModels(List<GoogleNearbyPlaceModel> placeModels) {
         this.placeModels = placeModels;
     }
 
