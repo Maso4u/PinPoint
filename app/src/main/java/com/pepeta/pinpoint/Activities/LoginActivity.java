@@ -50,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
     private DatabaseReference dbReference;
+
     private DatabaseReference dbUsers;
     private Activity activity;
     User user = new User();
@@ -70,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToMainActivity() {
         Intent intent = new Intent(binding.getRoot().getContext(), MainActivity.class);
+        intent.putExtra("user",user);
         startActivity(intent);
     }
 

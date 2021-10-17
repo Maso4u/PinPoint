@@ -12,6 +12,7 @@ import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,6 +22,12 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.pepeta.pinpoint.Activities.LoginActivity;
 import com.pepeta.pinpoint.Activities.RegisterActivity;
+import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
+import com.pepeta.pinpoint.WebServices.RetrofitAPI;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class FunctionalUtil {
 
@@ -126,4 +133,20 @@ public class FunctionalUtil {
         return true;
     }
 
+
+/*    public DetailsModel getPlaceDetails(String placeId, CompositeDisposable compositeDisposable, RetrofitAPI googleMapsService) {
+        DetailsModel detailsModel = new DetailsModel();
+        compositeDisposable.add(
+                googleMapsService.getPlaceDetails(
+                        placeId,
+                        BuildConfig.MAPS_API_KEY)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                placeDetailsRootModel ->  placeDetailsRootModel.getDetails(),
+                                throwable -> Log.d("MYERROR", "accept: " + throwable.getMessage())
+                        )
+        );
+        return detailsModel;
+    }*/
 }

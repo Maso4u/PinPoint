@@ -9,10 +9,25 @@
         android:id="@+id/locationsFragment"
         android:name="com.pepeta.pinpoint.Fragments.MapsFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps" />
+        tools:layout="@layout/fragment_maps" >
+        <argument
+            android:name="user"
+            app:argType="com.pepeta.pinpoint.User" />
+    </fragment>
     <fragment
         android:id="@+id/favouritesFragment"
         android:name="com.pepeta.pinpoint.Fragments.FavouritesFragment"
         android:label="fragment_favourites"
-        tools:layout="@layout/fragment_favourites" />
+        tools:layout="@layout/fragment_favourites" >
+
+        <!--app:nullable="true"
+        android:defaultValue="@null"-->
+    </fragment>
+    <action
+        android:id="@+id/action_global_favouritesFragment"
+        app:destination="@id/favouritesFragment">
+        <argument
+            android:name="user"
+            app:argType="com.pepeta.pinpoint.User"/>
+    </action>
 </navigation>

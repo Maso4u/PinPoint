@@ -21,4 +21,5 @@ public interface RetrofitAPI {
             @Query("place_id") String placeId,
             @Query("key") String apiKey
     );
+
 }

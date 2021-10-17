@@ -6,6 +6,7 @@
         android:title="@string/locations"
         android:icon="@drawable/locations_selector"
         android:iconTint="@color/text_black"/>
+
     <item
         android:id="@+id/favouritesFragment"
         android:title="@string/favourites"

@@ -38,6 +38,7 @@ import com.pepeta.pinpoint.BuildConfig;
 import com.pepeta.pinpoint.Model.NearByPlaces.GoogleNearbyPlaceModel;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 import com.pepeta.pinpoint.R;
+import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.WebServices.RetrofitAPI;
 import com.pepeta.pinpoint.WebServices.RetrofitClient;
 import com.pepeta.pinpoint.databinding.FragmentMapsBinding;
@@ -57,11 +58,14 @@ public class MapsFragment extends Fragment {
     Location currentLocation;
     GoogleMap mGoogleMap;
     DetailsModel mClickedPlace;
-
+    String userID;
+    User user;
     private final RetrofitAPI googleMapsService;
     private final CompositeDisposable compositeDisposable;
     private int radius =6000;
     private List<GoogleNearbyPlaceModel> googleNearbyPlaceModelList;
+
+    private static final String ARG_USER_ID = "userID";
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
         /**
@@ -135,6 +139,21 @@ public class MapsFragment extends Fragment {
         Retrofit retrofit = RetrofitClient.getRetrofitClient();
         googleMapsService = retrofit.create(RetrofitAPI.class);
     }
+    public static MapsFragment newInstance(String userID) {
+        MapsFragment fragment = new MapsFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_USER_ID, userID);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            userID = getArguments().getString(ARG_USER_ID);
+        }
+    }
 
     @Nullable
     @Override
@@ -142,8 +161,10 @@ public class MapsFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentMapsBinding.inflate(inflater,container,false);
+
         initGoogleMap(savedInstanceState);
         googleNearbyPlaceModelList = new ArrayList<>();
+
         return binding.getRoot();
     }
 
@@ -165,6 +186,7 @@ public class MapsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapView);
+
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
@@ -308,7 +330,7 @@ public class MapsFragment extends Fragment {
         if (mClickedPlace!=null){
             getChildFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.placeInfoFragment, PlaceInfoWindowFragment.newInstance(mClickedPlace)).commit();
+                    .replace(R.id.placeInfoFragment, PlaceInfoWindowFragment.newInstance(mClickedPlace,userID)).commit();
             binding.placeInfoFragment.setVisibility(View.VISIBLE);
         }
     }

@@ -55,7 +55,8 @@
     <string name="address">Address</string>
     <string name="marker_icon">marker icon</string>
     <string name="globe_icon">globe icon for website</string>
-    <string name="rating_label_text">Rating: </string>
-    <string name="distance_label_text">Distance: </string>
-    <string name="contact_number_label_text">Contact Number: </string>
+    <string name="rating_text">Rating: %1$.2f/5</string>
+    <string name="distance_text">Distance: %1$d %2$s</string>
+    <string name="contact_number_text">Contact Number: %1$s</string>
+    <string name="hours">Hours: %1$s · %2s - %3s</string>
 </resources>

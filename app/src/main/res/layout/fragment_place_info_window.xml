@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/infoWindowLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -32,9 +33,9 @@
                 android:layout_toStartOf="@+id/btnAddPlaceToFavourite"
                 android:fontFamily="@font/poppins_medium"
                 android:text="@string/locations"
+                android:textAlignment="center"
                 android:textColor="@color/text_black"
-                android:textSize="@dimen/subheading_text_size"
-                android:textAlignment="center"/>
+                android:textSize="@dimen/subheading_text_size" />
 
             <ToggleButton
                 android:id="@+id/btnAddPlaceToFavourite"
@@ -51,7 +52,8 @@
                 android:paddingHorizontal="20dp"
                 android:textAllCaps="false"
                 android:textOff="@string/favourite"
-                android:textOn="@string/favourited"/>
+                android:textOn="@string/favourited"
+                android:textColor="@drawable/toggle_button_text_color"/>
         </RelativeLayout>
 
         <LinearLayout
@@ -110,7 +112,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:text="@string/address"
                 android:textColor="@color/green"
                 android:textSize="@dimen/normal_text_size"
                 android:clickable="true"
@@ -118,49 +119,44 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/place_property_margin">
-
-            <TextView
-                android:id="@+id/tvContactNumberLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:text="@string/contact_number_label_text"
-                android:textColor="@color/text_black"
-                android:textSize="@dimen/normal_text_size" />
-
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/marker_icon"
+                android:src="@drawable/ic_phone" />
             <TextView
                 android:id="@+id/tvContactNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
+                android:text="@string/contact_number_text"
                 android:textColor="@color/text_black"
                 android:textSize="@dimen/normal_text_size" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/place_property_margin">
-
-            <TextView
-                android:id="@+id/tvRatingLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:text="@string/rating_label_text"
-                android:textColor="@color/text_black"
-                android:textSize="@dimen/normal_text_size" />
-
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/marker_icon"
+                android:src="@drawable/ic_star_rate" />
             <TextView
                 android:id="@+id/tvRating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
+                android:text="@string/rating_text"
                 android:textColor="@color/text_black"
                 android:textSize="@dimen/normal_text_size" />
+
         </LinearLayout>
 
 
@@ -174,7 +170,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:text="@string/distance_label_text"
+                android:text="@string/distance_text"
                 android:textColor="@color/text_black"
                 android:textSize="@dimen/normal_text_size" />
 

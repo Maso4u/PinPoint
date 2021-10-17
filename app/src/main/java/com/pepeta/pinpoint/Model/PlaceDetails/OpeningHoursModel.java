@@ -7,6 +7,7 @@ import java.util.List;
 
 public class OpeningHoursModel {
 
+    //region Object Fields
     @SerializedName("open_now")
     @Expose
     private Boolean openNow;
@@ -16,7 +17,9 @@ public class OpeningHoursModel {
     @SerializedName("weekday_text")
     @Expose
     private List<String> weekdayText = null;
+    //endregion
 
+    //region GETTERS AND SETTERS
     public Boolean getOpenNow() {
         return openNow;
     }
@@ -40,5 +43,7 @@ public class OpeningHoursModel {
     public void setWeekdayText(List<String> weekdayText) {
         this.weekdayText = weekdayText;
     }
+    //endregion
+
 
 }

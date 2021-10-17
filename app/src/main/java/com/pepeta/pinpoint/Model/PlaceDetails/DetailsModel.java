@@ -230,6 +230,10 @@ public class DetailsModel implements Parcelable {
     }
     //endregion
 
+
+    public DetailsModel() {
+    }
+
     protected DetailsModel(Parcel in) {
         adrAddress = in.readString();
         businessStatus = in.readString();

@@ -3,10 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragments.FavouritesFragment">
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".Fragments.FavouritesFragment"
+    android:id="@+id/favouritesFragmentLayout">
+<!--<TextView
+    android:id="@+id/tvUserId"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"/>-->
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFavouritePlaces"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        tools:listitem="@layout/favourite_place_row"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
 </FrameLayout>
