@@ -65,7 +65,6 @@ public class FavouritesFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private String userID;
-    private User user;
 
     public FavouritesFragment() {
         // Required empty public constructor
@@ -134,7 +133,6 @@ public class FavouritesFragment extends Fragment {
         if (placeIdList.size()>0){
             if (placesList.size()<=0){
                 for (String placeId : placeIdList) {
-
                     compositeDisposable.add(
                             googleMapsService.getPlaceDetails(
                                     placeId,
@@ -174,6 +172,7 @@ public class FavouritesFragment extends Fragment {
         }
     }
 
+
     ItemTouchHelper.SimpleCallback itemTouchHelperCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -201,22 +200,5 @@ public class FavouritesFragment extends Fragment {
             });
         }
     };
-
-/*    private void removeFromFavourites(DetailsModel details,int position) {
-        dbFavourites.child(userID).child(details.getPlaceId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    placeIdList.remove(position);
-                    placesList.remove(position);
-//                    favouritesRecyclerViewAdapter.notifyItemRemoved(position);
-                    favouritesRecyclerViewAdapter.updateFavouritePlacesList(placesList);
-                    showMessageErrorSnackBar(binding.favouritesFragmentLayout,"Place successfully removed from Favourites",false);
-                }else{
-                    showMessageErrorSnackBar(binding.favouritesFragmentLayout,task.getException().getMessage(),true);
-                }
-            }
-        });
-    }*/
 
 }

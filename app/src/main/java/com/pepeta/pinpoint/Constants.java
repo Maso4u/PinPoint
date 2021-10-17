@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 public class Constants {
     public static final String NODE_USERS = "Users";
     public static final String NODE_FAVOURITES = "Favourites";
+    public static final String NODE_SETTINGS ="Settings" ;
     public static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     public static final int LOCATION_PERMISSION_REQUEST_CODE =1234 ;
     public static final int ERROR_DIALOG_REQUEST = 9001;

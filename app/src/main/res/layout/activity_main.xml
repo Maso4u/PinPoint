@@ -31,13 +31,12 @@
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
                 android:layout_centerInParent="true"/>
 
-            <Button
+            <CheckBox
                 android:id="@+id/btnSettings"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentRight="true"
-                android:layout_gravity="center"
-                android:background="@drawable/settings_button_style" />
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/settings_button_style"
+                android:button="@android:color/transparent" />
         </RelativeLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -47,9 +46,9 @@
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:defaultNavHost="true"
         android:layout_above="@id/bottomNavView"
-        android:layout_below="@id/appbarLayout"/>
+        android:layout_below="@id/appbarLayout"
+        app:defaultNavHost="true" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavView"

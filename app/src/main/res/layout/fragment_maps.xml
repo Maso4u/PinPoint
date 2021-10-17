@@ -19,14 +19,14 @@ xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/placeInfoFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="40"
+        android:layout_weight="48"
         android:visibility="gone"
         android:name="com.pepeta.pinpoint.Fragments.PlaceInfoWindowFragment"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="60">
+        android:layout_weight="55">
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"

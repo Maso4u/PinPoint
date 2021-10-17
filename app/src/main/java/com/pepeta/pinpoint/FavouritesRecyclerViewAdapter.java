@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.location.places.Place;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 import com.pepeta.pinpoint.Model.PlaceDetails.PeriodModel;
 import com.pepeta.pinpoint.databinding.FavouritePlaceRowBinding;
@@ -79,24 +80,36 @@ public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<Favourit
                     periodMsg ="Closes";
 
                     for (PeriodModel period:details.getOpeningHours().getPeriods()) {
-                        if (period.getClose().getDay()==dayOfWeek) closeTime=period.getClose().getTime();
+                        if (period.getClose().getDay()==dayOfWeek) {
+                            closeTime=period.getClose().getTime();
+                            break;
+                        }
                     }
                 }else {
                     closeStatus = "Closed";
                     periodMsg ="Opens";
                     binding.tvHours.setTextColor(binding.getRoot().getContext().getColor(R.color.error_red));
                     for (PeriodModel period:details.getOpeningHours().getPeriods()) {
-                        if (period.getOpen().getDay()==dayOfWeek) closeTime=period.getOpen().getTime();
+                        if (period.getOpen().getDay()==dayOfWeek) {
+                            closeTime=period.getOpen().getTime();
+                            break;
+                        }
                     }
                 }
+
                 binding.tvHours.setText(String.format(binding.getRoot()
                         .getContext()
-                        .getString(R.string.hours),closeStatus,periodMsg,closeTime));
+                        .getString(R.string.hours),closeStatus,periodMsg,formattedTime(closeTime)));
+            }else{
+                binding.tvHours.setText(R.string.hours_unavailable);
             }
         }
 
-        private void placePeriodStatusUpdater(){
-
+        private String formattedTime(String unformattedTime){
+            String hours = unformattedTime.substring(0,2);
+            String minutes = unformattedTime.substring(2,4);
+            return hours+":"+minutes;
         }
+
     }
 }

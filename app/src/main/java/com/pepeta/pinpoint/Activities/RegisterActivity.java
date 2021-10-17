@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.pepeta.pinpoint.FunctionalUtil;
 import com.pepeta.pinpoint.R;
+import com.pepeta.pinpoint.Settings;
 import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityRegisterBinding;
 import com.pepeta.pinpoint.Constants;
@@ -31,6 +32,7 @@ public class RegisterActivity extends AppCompatActivity{
     private FirebaseDatabase database;
     private DatabaseReference dbReference;
     private DatabaseReference dbUsers;
+    private DatabaseReference dbSettings;
 
     public RegisterActivity() {
     }
@@ -49,6 +51,7 @@ public class RegisterActivity extends AppCompatActivity{
             database =FirebaseDatabase.getInstance();
             dbReference = database.getReference();
             dbUsers= dbReference.child(Constants.NODE_USERS);
+            dbSettings=dbReference.child(Constants.NODE_SETTINGS);
             registerUser();
         } );
     }
@@ -71,6 +74,7 @@ public class RegisterActivity extends AppCompatActivity{
                                     public void onComplete(@NonNull Task<Void> task ) {
                                         if (task.isSuccessful()){
                                             clearFields(binding.etFullname, binding.etEmail,binding.etPassword,binding.etConfirmPW);
+                                            createUserSettings(user.getId());
                                             FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,"Registeration successfull!",false);
                                         }else{
                                             //if registration unsuccessful
@@ -142,6 +146,7 @@ public class RegisterActivity extends AppCompatActivity{
         return true;
     }
 */
+
     /**
      * validate whether values user entered in the edit texts are valid or not
      * @return - true if all fields are valid and false if not.
@@ -185,4 +190,10 @@ public class RegisterActivity extends AppCompatActivity{
         return valid;
     }
 
+    private void createUserSettings(String userID){
+        Settings settings = new Settings();
+        settings.setPreferredMeasuringUnitType(getResources().getStringArray(R.array.unit_types)[0]);
+        settings.setPreferredLandMarkType(getResources().getStringArray(R.array.preferred_landmark)[0]);
+        dbSettings.child(userID).setValue(settings);
+    }
 }

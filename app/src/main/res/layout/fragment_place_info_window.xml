@@ -183,5 +183,12 @@
                 android:textSize="@dimen/normal_text_size" />
         </LinearLayout>
     </LinearLayout>
-
+    <Button
+        android:id="@+id/btnHideWindow"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="center"
+        android:foregroundTint="@color/text_black"
+        android:background="@drawable/ic_up"
+        android:clickable="true"/>
 </LinearLayout>

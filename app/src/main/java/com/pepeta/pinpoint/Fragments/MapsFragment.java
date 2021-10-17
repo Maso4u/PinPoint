@@ -328,9 +328,10 @@ public class MapsFragment extends Fragment {
     private void displayDetailsWindow(DetailsModel placeDetailsModel){
         mClickedPlace = placeDetailsModel;
         if (mClickedPlace!=null){
+            PlaceInfoWindowFragment placeInfoWindow=PlaceInfoWindowFragment.newInstance(mClickedPlace,userID);
             getChildFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.placeInfoFragment, PlaceInfoWindowFragment.newInstance(mClickedPlace,userID)).commit();
+                    .replace(R.id.placeInfoFragment, placeInfoWindow).commit();
             binding.placeInfoFragment.setVisibility(View.VISIBLE);
         }
     }

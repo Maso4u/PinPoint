@@ -58,5 +58,6 @@
     <string name="rating_text">Rating: %1$.2f/5</string>
     <string name="distance_text">Distance: %1$d %2$s</string>
     <string name="contact_number_text">Contact Number: %1$s</string>
-    <string name="hours">Hours: %1$s · %2s - %3s</string>
+    <string name="hours">Hours: %1$s · %2$s - %3$s</string>
+    <string name="hours_unavailable">Hours: Unavailable</string>
 </resources>

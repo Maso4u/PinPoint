@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +28,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.pepeta.pinpoint.Fragments.FavouritesFragment;
 import com.pepeta.pinpoint.Fragments.FavouritesFragmentDirections;
 import com.pepeta.pinpoint.Fragments.MapsFragment;
+import com.pepeta.pinpoint.Fragments.SettingsFragment;
 import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityMainBinding;
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity{
     private ActivityMainBinding binding;
     public User user;
     NavArgument navArgument;
+    Fragment selectedFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,18 +55,36 @@ public class MainActivity extends AppCompatActivity{
             binding.bottomNavView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    Fragment selectedFragment = null;
                     switch (item.getItemId()){
                         case R.id.favouritesFragment:
-//                            getFragmentManager().beginTransaction().replace(binding.hostFragment.getId(),FavouritesFragment.newInstance(user.getId()));
                             selectedFragment = FavouritesFragment.newInstance(user.getId());
                             break;
                         case R.id.locationsFragment:
                             selectedFragment = MapsFragment.newInstance(user.getId());
                             break;
                     }
+                    if (binding.btnSettings.isChecked()) binding.btnSettings.setChecked(false);
                     getSupportFragmentManager().beginTransaction().replace(binding.hostFragment.getId(),selectedFragment).commit();
                     return true;
+                }
+            });
+
+            binding.btnSettings.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        getSupportFragmentManager().beginTransaction().
+                                replace(binding.hostFragment.getId(), SettingsFragment.newInstance(user.getId())).
+                                addToBackStack(null).commit();
+                    }else{
+                        if (selectedFragment instanceof FavouritesFragment){
+                            selectedFragment = FavouritesFragment.newInstance(user.getId());
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(binding.hostFragment.getId(),selectedFragment).commit();
+                        }else{
+                            getSupportFragmentManager().popBackStack();
+                        }
+                    }
                 }
             });
         }
