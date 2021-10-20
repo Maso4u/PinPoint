@@ -63,7 +63,7 @@ public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<Favourit
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             int dayOfWeek = c.get(Calendar.DAY_OF_WEEK)-1;
-            String closeStatus="", closeTime="", periodMsg="";
+            String closeStatus, closeTime = null, periodMsg;
 
             binding.tvPlaceName.setText(details.getName());
             binding.tvPlaceAddress.setText(details.getFormattedAddress());
@@ -100,9 +100,7 @@ public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<Favourit
                 binding.tvHours.setText(String.format(binding.getRoot()
                         .getContext()
                         .getString(R.string.hours),closeStatus,periodMsg,formattedTime(closeTime)));
-            }else{
-                binding.tvHours.setText(R.string.hours_unavailable);
-            }
+            }else binding.tvHours.setText(R.string.hours_unavailable);
         }
 
         private String formattedTime(String unformattedTime){

@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MapsFragment" />-->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/locationsFragmentLayout"
@@ -27,10 +19,22 @@ xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="55">
+
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
+
+        <CheckBox
+            android:id="@+id/btnNavigate"
+            android:layout_width="39.5dp"
+            android:layout_height="39.5dp"
+            android:layout_marginStart="315dp"
+            android:layout_marginTop="11dp"
+            android:alpha="0.58"
+            android:background="@drawable/navigation_button_style"
+            android:button="@android:color/transparent"
+            android:elevation="10dp" />
     </RelativeLayout>
 
 </LinearLayout>

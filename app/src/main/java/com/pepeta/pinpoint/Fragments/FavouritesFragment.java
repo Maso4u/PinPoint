@@ -36,6 +36,7 @@ import com.pepeta.pinpoint.databinding.FragmentFavouritesBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -77,7 +78,7 @@ public class FavouritesFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param userID
+     * @param userID ID of user logged in
      * @return A new instance of fragment FavouritesFragment.
      */
     public static FavouritesFragment newInstance(String userID) {
@@ -97,7 +98,7 @@ public class FavouritesFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentFavouritesBinding.inflate(getLayoutInflater());
@@ -124,9 +125,6 @@ public class FavouritesFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         compositeDisposable.clear();
-    }
-    private void initFavouritesList(){
-        setFavouritePlacesIDList();
     }
 
     private void getUserFavouritePlaces() {
@@ -184,18 +182,15 @@ public class FavouritesFragment extends Fragment {
             int position = viewHolder.getAdapterPosition();
             /*DetailsModel place = placesList.get(position);
             removeFromFavourites(place,position);*/
-            dbFavourites.child(userID).child(placesList.get(position).getPlaceId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()){
-                        placeIdList.remove(position);
-                        placesList.remove(position);
+            dbFavourites.child(userID).child(placesList.get(position).getPlaceId()).removeValue().addOnCompleteListener(task -> {
+                if (task.isSuccessful()){
+                    placeIdList.remove(position);
+                    placesList.remove(position);
 //                    favouritesRecyclerViewAdapter.notifyItemRemoved(position);
-                        favouritesRecyclerViewAdapter.updateFavouritePlacesList(placesList);
-                        showMessageErrorSnackBar(binding.favouritesFragmentLayout,"Place successfully removed from Favourites",false);
-                    }else{
-                        showMessageErrorSnackBar(binding.favouritesFragmentLayout,task.getException().getMessage(),true);
-                    }
+                    favouritesRecyclerViewAdapter.updateFavouritePlacesList(placesList);
+                    showMessageErrorSnackBar(binding.favouritesFragmentLayout,"Place successfully removed from Favourites",false);
+                }else{
+                    showMessageErrorSnackBar(binding.favouritesFragmentLayout, Objects.requireNonNull(task.getException()).getMessage(),true);
                 }
             });
         }

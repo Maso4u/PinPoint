@@ -1,7 +1,6 @@
 package com.pepeta.pinpoint.Fragments;
 
 import static android.content.ContentValues.TAG;
-import static com.pepeta.pinpoint.Constants.DEFAULT_ZOOM;
 import static com.pepeta.pinpoint.Constants.MAPVIEW_BUNDLE_KEY;
 import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
 
@@ -13,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,19 +30,26 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.pepeta.pinpoint.BuildConfig;
+import com.pepeta.pinpoint.Constants;
 import com.pepeta.pinpoint.Model.NearByPlaces.GoogleNearbyPlaceModel;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 import com.pepeta.pinpoint.R;
-import com.pepeta.pinpoint.User;
+import com.pepeta.pinpoint.Settings;
 import com.pepeta.pinpoint.WebServices.RetrofitAPI;
 import com.pepeta.pinpoint.WebServices.RetrofitClient;
 import com.pepeta.pinpoint.databinding.FragmentMapsBinding;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -54,20 +59,24 @@ import retrofit2.Retrofit;
 public class MapsFragment extends Fragment {
     FragmentMapsBinding binding;
     FusedLocationProviderClient mFusedLocationProviderClient;
-    String placeAddress;
+//    String placeAddress;
     Location currentLocation;
     GoogleMap mGoogleMap;
     DetailsModel mClickedPlace;
     String userID;
-    User user;
+    Settings settings;
+
+    private DatabaseReference dbSettings;
+
     private final RetrofitAPI googleMapsService;
     private final CompositeDisposable compositeDisposable;
-    private int radius =6000;
     private List<GoogleNearbyPlaceModel> googleNearbyPlaceModelList;
-
+//    private List<String> arrPlaceTypes;
+    private String placeType;
+    private String[] keywords;
     private static final String ARG_USER_ID = "userID";
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         /**
          * Manipulates the map once available.
          * This callback is triggered when the map is ready to be used.
@@ -78,35 +87,28 @@ public class MapsFragment extends Fragment {
          * user has installed Google Play services and returned to the app.
          */
         @Override
-        public void onMapReady(GoogleMap googleMap) {
+        public void onMapReady(@NonNull GoogleMap googleMap) {
             mGoogleMap = googleMap;
-            mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(@NonNull Marker marker) {
-                    getClickedPlace(marker);
-                    return true;
-                }
+            mGoogleMap.setOnMarkerClickListener(marker -> {
+                getClickedPlace(marker);
+                return true;
             });
             mFusedLocationProviderClient = LocationServices
-                    .getFusedLocationProviderClient(getActivity());
+                    .getFusedLocationProviderClient(requireActivity());
             try {
-                Task location = mFusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(new OnCompleteListener() {
-                    @Override
-                    public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "getDeviceLocation: found location");
-                            currentLocation = (Location) task.getResult();
-                            googleMap.setMyLocationEnabled(true);
-                            getPlaces("restaurant");
-                            moveCamera(
-                                    new LatLng(currentLocation.getLatitude(),
-                                    currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM, googleMap);
-                        } else {
-                            Log.d(TAG, "getDeviceLocation: location null");
-                            showMessageErrorSnackBar(binding.locationsFragmentLayout, "location null", true);
-                        }
+                mFusedLocationProviderClient.getLastLocation().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "getDeviceLocation: found location");
+                        currentLocation = (Location) task.getResult();
+                        googleMap.setMyLocationEnabled(true);
+                        getUserPreferredLandMark();
+                        moveCamera(
+                                new LatLng(currentLocation.getLatitude(),
+                                currentLocation.getLongitude()),
+                                googleMap);
+                    } else {
+                        Log.d(TAG, "getDeviceLocation: location null");
+                        showMessageErrorSnackBar(binding.locationsFragmentLayout, "location null", true);
                     }
                 });
 
@@ -116,22 +118,63 @@ public class MapsFragment extends Fragment {
         }
     };
 
-    private void geoLocate(){
-        Log.d(TAG,"geoLocate: geolocating");
-        if (!placeAddress.isEmpty()){
-            Geocoder geocoder = new Geocoder(this.getContext());
-        }
+    private void getUserPreferredLandMark() {
+        settings = new Settings();
+        dbSettings.child(userID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (DataSnapshot settingsSnapshot: snapshot.getChildren()) {
+                        String preferredType = Objects.requireNonNull(settingsSnapshot.getValue()).toString();
+                        if (Objects.equals(settingsSnapshot.getKey(), "preferredLandMarkType")){
+                            settings.setPreferredLandMarkType(preferredType);
+                            switch (settings.getPlaceFilter()){
+                                case SPORTS:
+                                    placeType = Settings.PlaceFilter.SPORTS.getTypes();
+                                    keywords = Settings.PlaceFilter.SPORTS.getKeywords();
+                                    break;
+                                case PURPOSE_BUILT:
+                                    placeType = Settings.PlaceFilter.PURPOSE_BUILT.getTypes();
+                                    keywords = Settings.PlaceFilter.PURPOSE_BUILT.getKeywords();
+                                    break;
+                                case EVENTS:
+                                    placeType= Settings.PlaceFilter.EVENTS.getTypes();
+                                    keywords= Settings.PlaceFilter.EVENTS.getKeywords();
+                                    break;
+                                case NATURAL:
+                                    placeType= Settings.PlaceFilter.NATURAL.getTypes();
+                                    keywords= Settings.PlaceFilter.NATURAL.getKeywords();
+                                    break;
+                            }
+                            getPlaces();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
+
+//    private void geoLocate(){
+//        Log.d(TAG,"geoLocate: geolocating");
+//        if (!placeAddress.isEmpty()){
+//            Geocoder geocoder = new Geocoder(this.getContext());
+//        }
+//    }
 
     /**
      * Move camera on maps to location
      * @param latLng latitude and longitude of location
-     * @param zoom rate to zoom on map in
      * @param googleMap the google map
      */
-    private void moveCamera(LatLng latLng, float zoom, GoogleMap googleMap) {
+    private void moveCamera(LatLng latLng, GoogleMap googleMap) {
         Log.d(TAG,"moveCamera: moving the camera to: lat: "+latLng.latitude+", lng: "+latLng.longitude);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, Constants.DEFAULT_ZOOM));
     }
 
     public MapsFragment() {
@@ -162,15 +205,23 @@ public class MapsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentMapsBinding.inflate(inflater,container,false);
 
+        getPLaceTypes();
         initGoogleMap(savedInstanceState);
         googleNearbyPlaceModelList = new ArrayList<>();
-
         return binding.getRoot();
+    }
+
+    private void getPLaceTypes() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference dbReference = database.getReference();
+        dbSettings = dbReference.child(Constants.NODE_SETTINGS);
+//        arrPlaceTypes = new ArrayList<>();
+
     }
 
     /**
      * initializes google map
-     * @param savedInstanceState
+     * @param savedInstanceState bundle of saved instance
      */
     private void initGoogleMap(Bundle savedInstanceState) {
         Bundle mapViewBundle = null;
@@ -231,25 +282,30 @@ public class MapsFragment extends Fragment {
 
     /**
      * retrieve google places from API
-     * @param type type of location to retrieve from API
      */
-    private void getPlaces(String type){
+    private void getPlaces(){
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         String strCurrentLocation = latLng.latitude+","+latLng.longitude;
         // Make the call using Retrofit and RxJava
-        compositeDisposable.add(
-                googleMapsService.getNearByPlaces(
-                        strCurrentLocation,
-                        radius,
-                        type,
-                        BuildConfig.MAPS_API_KEY)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        GooglePlacesModel -> showPlaces(GooglePlacesModel.getPlaceModels()),
-                        throwable -> Log.d("MYERROR", "accept: " + throwable.getMessage())
-                )
-        );
+        if (keywords!=null){
+            for (String keyword: keywords) {
+                int radius = 6000;
+                compositeDisposable.add(
+                        googleMapsService.getNearByPlaces(
+                                keyword,
+                                strCurrentLocation,
+                                radius,
+                                placeType,
+                                BuildConfig.MAPS_API_KEY)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(
+                                        GooglePlacesModel -> showPlaces(GooglePlacesModel.getPlaceModels()),
+                                        throwable -> Log.d("MYERROR", "accept: " + throwable.getMessage())
+                                )
+                );
+            }
+        }
     }
 
     /**
@@ -258,17 +314,13 @@ public class MapsFragment extends Fragment {
      */
     private void showPlaces(List<GoogleNearbyPlaceModel> googleNearbyPlaceModels) {
         if (googleNearbyPlaceModels.size()>0){
-            googleNearbyPlaceModelList.clear();
+            googleNearbyPlaceModelList.addAll(googleNearbyPlaceModels);
+            Set<GoogleNearbyPlaceModel> placeModelSet = new HashSet<>(googleNearbyPlaceModelList);
+            googleNearbyPlaceModelList = new ArrayList<>(placeModelSet);
             mGoogleMap.clear();
-            for(GoogleNearbyPlaceModel googleNearbyPlaceModel : googleNearbyPlaceModels){
-                googleNearbyPlaceModelList.add(googleNearbyPlaceModel);
-                addMarker(googleNearbyPlaceModel, googleNearbyPlaceModels.indexOf(googleNearbyPlaceModel));
+            for(GoogleNearbyPlaceModel googleNearbyPlaceModel : googleNearbyPlaceModelList){
+                addMarker(googleNearbyPlaceModel, googleNearbyPlaceModelList.indexOf(googleNearbyPlaceModel));
             }
-        }else{
-            mGoogleMap.clear();
-            googleNearbyPlaceModelList.clear();
-            radius+=1000;
-//            getPlaces();
         }
     }
 
@@ -282,7 +334,7 @@ public class MapsFragment extends Fragment {
                 .position(new LatLng(googleNearbyPlaceModel.getGeometry().getLocation().getLat(),
                         googleNearbyPlaceModel.getGeometry().getLocation().getLng()));
         markerOptions.icon(getCustomIcon());
-        mGoogleMap.addMarker(markerOptions).setTag(position);
+        Objects.requireNonNull(mGoogleMap.addMarker(markerOptions)).setTag(position);
     }
 
     /**
@@ -291,6 +343,7 @@ public class MapsFragment extends Fragment {
      */
     private BitmapDescriptor getCustomIcon() {
         Drawable background = ContextCompat.getDrawable(requireContext(), R.drawable.ic_location);
+        assert background != null;
         background.setTint(getResources().getColor(R.color.green, null));
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
         Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(),
@@ -300,6 +353,10 @@ public class MapsFragment extends Fragment {
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
+    /**
+     * Get the place where the clicked marker is
+     * @param marker google maps marker clicked
+     */
     private void getClickedPlace(Marker marker){
         LatLng markerLatLng = marker.getPosition();
         for (GoogleNearbyPlaceModel place:
@@ -310,6 +367,10 @@ public class MapsFragment extends Fragment {
         }
     }
 
+    /**
+     * Get details of a place
+     * @param placeId google maps API placeID
+     */
     private void getPlaceDetails(String placeId) {
         compositeDisposable.add(
                 googleMapsService.getPlaceDetails(
@@ -318,13 +379,16 @@ public class MapsFragment extends Fragment {
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                placeDetailsRootModel -> {
-                                    displayDetailsWindow(placeDetailsRootModel.getDetails());
-                                },
+                                placeDetailsRootModel -> displayDetailsWindow(placeDetailsRootModel.getDetails()),
                                 throwable -> Log.d("MYERROR", "accept: " + throwable.getMessage())
                         )
         );
     }
+
+    /**
+     * Display the details window. in the fragment
+     * @param placeDetailsModel place to display details for
+     */
     private void displayDetailsWindow(DetailsModel placeDetailsModel){
         mClickedPlace = placeDetailsModel;
         if (mClickedPlace!=null){
