@@ -1,9 +1,6 @@
 package com.pepeta.pinpoint.WebServices;
 
 import static com.pepeta.pinpoint.Constants.BASE_URL;
-
-import com.google.gson.Gson;
-
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;

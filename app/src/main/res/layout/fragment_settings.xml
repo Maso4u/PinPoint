@@ -7,27 +7,6 @@
     tools:context=".Fragments.SettingsFragment"
     android:orientation="vertical"
     android:id="@+id/settingLayout">
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/credentials_margin_horizontal"
-        android:layout_marginVertical="@dimen/credentials_margin_vertical1"
-        android:hint="@string/preferred_unit_type"
-        android:textColorHint="@color/placeholder_grey"
-        app:startIconDrawable="@drawable/ic_ruler"
-        app:startIconTint="@color/text_black"
-        app:errorTextColor="@color/error_red"
-        app:boxStrokeErrorColor="@color/error_red"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-            <AutoCompleteTextView
-                android:id="@+id/tvPreferredUnitTypeList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@null"
-                android:inputType="none|textNoSuggestions"
-                android:cursorVisible="false"/>
-    </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,6 +28,69 @@
             android:cursorVisible="false"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/credentials_margin_horizontal"
+        android:layout_marginVertical="@dimen/credentials_margin_vertical1"
+        android:hint="@string/preferred_unit_type"
+        android:textColorHint="@color/placeholder_grey"
+        app:startIconDrawable="@drawable/ic_ruler"
+        app:startIconTint="@color/text_black"
+        app:errorTextColor="@color/error_red"
+        app:boxStrokeErrorColor="@color/error_red"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            <AutoCompleteTextView
+                android:id="@+id/tvPreferredUnitTypeList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@null"
+                android:inputType="none|textNoSuggestions"
+                android:cursorVisible="false"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/credentials_margin_horizontal"
+        android:layout_marginVertical="@dimen/credentials_margin_vertical1"
+        android:hint="@string/preferred_search_radius"
+        android:textColorHint="@color/placeholder_grey"
+        app:startIconDrawable="@drawable/ic_radius"
+        app:startIconTint="@color/text_black"
+        app:errorTextColor="@color/error_red"
+        app:boxStrokeErrorColor="@color/error_red"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <AutoCompleteTextView
+            android:id="@+id/tvPreferredSearchRadius"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@null"
+            android:inputType="none|textNoSuggestions"
+            android:cursorVisible="false"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/credentials_margin_horizontal"
+        android:layout_marginVertical="@dimen/credentials_margin_vertical1"
+        android:hint="@string/preferred_directions_mode"
+        android:textColorHint="@color/placeholder_grey"
+        app:startIconDrawable="@drawable/ic_transportation"
+        app:startIconTint="@color/text_black"
+        app:errorTextColor="@color/error_red"
+        app:boxStrokeErrorColor="@color/error_red"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <AutoCompleteTextView
+            android:id="@+id/tvPreferredMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@null"
+            android:inputType="none|textNoSuggestions"
+            android:cursorVisible="false"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
     <Button
         android:id="@+id/btnUpdateSettings"
         android:text="@string/update_settings"
@@ -61,4 +103,5 @@
         android:textColor="@color/white"
         android:fontFamily="@font/poppins_medium"
         android:textSize="@dimen/button_text_size"/>
+
 </LinearLayout>

@@ -15,9 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,11 +24,9 @@ import com.pepeta.pinpoint.BuildConfig;
 import com.pepeta.pinpoint.Constants;
 import com.pepeta.pinpoint.FavouritesRecyclerViewAdapter;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
-import com.pepeta.pinpoint.R;
-import com.pepeta.pinpoint.User;
+
 import com.pepeta.pinpoint.WebServices.RetrofitAPI;
 import com.pepeta.pinpoint.WebServices.RetrofitClient;
-import com.pepeta.pinpoint.databinding.FavouritePlaceRowBinding;
 import com.pepeta.pinpoint.databinding.FragmentFavouritesBinding;
 
 import java.util.ArrayList;
@@ -55,9 +50,6 @@ public class FavouritesFragment extends Fragment {
     FragmentFavouritesBinding binding;
     FavouritesRecyclerViewAdapter favouritesRecyclerViewAdapter;
 
-    private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
-    private DatabaseReference dbReference;
     private DatabaseReference dbFavourites;
     private final List<String> placeIdList= new ArrayList<>();
     private final List<DetailsModel> placesList = new ArrayList<>();
@@ -106,9 +98,8 @@ public class FavouritesFragment extends Fragment {
         binding.rvFavouritePlaces.setAdapter(favouritesRecyclerViewAdapter);
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(binding.rvFavouritePlaces);
         if (!userID.isEmpty()){
-            mAuth = FirebaseAuth.getInstance();
-            database = FirebaseDatabase.getInstance();
-            dbReference = database.getReference();
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference dbReference = database.getReference();
             dbFavourites= dbReference.child(Constants.NODE_FAVOURITES);
             setFavouritePlacesIDList();
         }
@@ -182,11 +173,11 @@ public class FavouritesFragment extends Fragment {
             int position = viewHolder.getAdapterPosition();
             /*DetailsModel place = placesList.get(position);
             removeFromFavourites(place,position);*/
-            dbFavourites.child(userID).child(placesList.get(position).getPlaceId()).removeValue().addOnCompleteListener(task -> {
+            dbFavourites.child(userID).child(
+                    placesList.get(position).getPlaceId()).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()){
                     placeIdList.remove(position);
                     placesList.remove(position);
-//                    favouritesRecyclerViewAdapter.notifyItemRemoved(position);
                     favouritesRecyclerViewAdapter.updateFavouritePlacesList(placesList);
                     showMessageErrorSnackBar(binding.favouritesFragmentLayout,"Place successfully removed from Favourites",false);
                 }else{

@@ -10,13 +10,8 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +22,7 @@ import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.Settings;
 import com.pepeta.pinpoint.databinding.FragmentSettingsBinding;
 
-import java.lang.reflect.Array;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,13 +32,16 @@ import java.lang.reflect.Array;
 public class SettingsFragment extends Fragment {
     FragmentSettingsBinding binding;
 
-    private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
-    private DatabaseReference dbReference;
     private DatabaseReference dbSettings;
 
-    ArrayAdapter<String> preferredUnitsAdapterItems, preferredLandMarksAdapterItems;
-    String[] measuringUnits, preferredLandMarks;
+    //region DROP DOWN ADAPTER DECLERATIONS
+    ArrayAdapter<String> preferredUnitsAdapterItems;
+    ArrayAdapter<String> preferredLandMarksAdapterItems;
+    ArrayAdapter<String> preferredRadiusesAdapterItems;
+    ArrayAdapter<String> preferredTransportmodesAdapterItems;
+    //endregion
+
+    String[] measuringUnits, preferredLandMarks,preferredRadiuses, preferredTransportmodes;
     Settings settings;
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -74,18 +72,15 @@ public class SettingsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(getLayoutInflater());
         if (!userID.isEmpty()){
-
             //region Database initialisation
-            mAuth = FirebaseAuth.getInstance();
-            database = FirebaseDatabase.getInstance();
-            dbReference = database.getReference();
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference dbReference = database.getReference();
             dbSettings = dbReference.child(Constants.NODE_SETTINGS);
             //endregion
-
 
             //region SET MEASURE UNIT SETTINGS DROPDOWN MENU LIST ITEMS
             measuringUnits = getResources().getStringArray(R.array.unit_types);
@@ -99,21 +94,40 @@ public class SettingsFragment extends Fragment {
             binding.tvPreferredLandMarkList.setAdapter(preferredLandMarksAdapterItems);
             //endregion
 
+            //region SET RADIUSES
+            preferredRadiuses = getResources().getStringArray(R.array.preferred_radius);
+            preferredRadiusesAdapterItems = new ArrayAdapter<>(getContext(),R.layout.settings_list_item,preferredRadiuses);
+            binding.tvPreferredSearchRadius.setAdapter(preferredRadiusesAdapterItems);
+            //endregion
+
+            //region SET TRANSPORTATION MODES
+            preferredTransportmodes = getResources().getStringArray(R.array.preferred_transport_mode);
+            preferredTransportmodesAdapterItems = new ArrayAdapter<>(getContext(),R.layout.settings_list_item,preferredTransportmodes);
+            binding.tvPreferredMode.setAdapter(preferredTransportmodesAdapterItems);
+            //endregion
+
             getUserSettings();
-            binding.btnUpdateSettings.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(!binding.tvPreferredUnitTypeList.getText().toString().isEmpty() &&
-                            !binding.tvPreferredLandMarkList.getText().toString().isEmpty()){
-                        settings.setPreferredLandMarkType(binding.tvPreferredLandMarkList.getText().toString());
-                        settings.setPreferredMeasuringUnitType(binding.tvPreferredUnitTypeList.getText().toString());
-                        updateUserSettings();
-                    }
+            binding.btnUpdateSettings.setOnClickListener(v -> {
+                if(!binding.tvPreferredUnitTypeList.getText().toString().isEmpty() &&
+                        !binding.tvPreferredLandMarkList.getText().toString().isEmpty() &&
+                        !binding.tvPreferredMode.getText().toString().isEmpty() &&
+                        !binding.tvPreferredSearchRadius.getText().toString().isEmpty()
+                ){
+                    settings.setPreferredLandMarkType(binding.tvPreferredLandMarkList.getText().toString());
+                    settings.setPreferredMeasuringUnitType(binding.tvPreferredUnitTypeList.getText().toString());
+                    settings.setRadius(binding.tvPreferredSearchRadius.getText().toString());
+                    settings.setMode(binding.tvPreferredMode.getText().toString());
+                    updateUserSettings();
                 }
             });
         }
+
+        //region turn keyboard input off
         binding.tvPreferredUnitTypeList.setShowSoftInputOnFocus(false);
         binding.tvPreferredUnitTypeList.setShowSoftInputOnFocus(false);
+        binding.tvPreferredSearchRadius.setShowSoftInputOnFocus(false);
+        binding.tvPreferredMode.setShowSoftInputOnFocus(false);
+        //endregion
 
         // Inflate the layout for this fragment
         return binding.getRoot();
@@ -129,18 +143,29 @@ public class SettingsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     for (DataSnapshot settingsSnapshot:snapshot.getChildren()) {
-                        if (settingsSnapshot.getKey().equals("preferredLandMarkType")) {
-                            settings.setPreferredLandMarkType(settingsSnapshot.getValue().toString());
+                        if (Objects.equals(settingsSnapshot.getKey(), "preferredLandMarkType")) {
+                            settings.setPreferredLandMarkType(Objects.requireNonNull(settingsSnapshot.getValue()).toString());
                         }
-                        if (settingsSnapshot.getKey().equals("preferredMeasuringUnitType")) {
-                            settings.setPreferredMeasuringUnitType(settingsSnapshot.getValue().toString());
+                        if (Objects.equals(settingsSnapshot.getKey(), "preferredMeasuringUnitType")) {
+                            settings.setPreferredMeasuringUnitType(Objects.requireNonNull(settingsSnapshot.getValue()).toString());
+                        }
+                        if (settingsSnapshot.getKey().equals("mode")){
+                            settings.setMode(Objects.requireNonNull(settingsSnapshot.getValue()).toString());
+                        }
+                        if (settingsSnapshot.getKey().equals("radius")){
+                            settings.setRadius(Objects.requireNonNull(settingsSnapshot.getValue()).toString());
                         }
                     }
                     binding.tvPreferredUnitTypeList.setText(settings.getPreferredMeasuringUnitType(),false);
                     binding.tvPreferredLandMarkList.setText(settings.getPreferredLandMarkType(),false);
+                    binding.tvPreferredMode.setText(settings.getMode(),false);
+                    binding.tvPreferredSearchRadius.setText(settings.getRadius(),false);
                 }else{
+
                     binding.tvPreferredUnitTypeList.setSelection(0);
                     binding.tvPreferredLandMarkList.setSelection(0);
+                    binding.tvPreferredMode.setSelection(0);
+                    binding.tvPreferredSearchRadius.setSelection(0);
                 }
             }
 
@@ -153,13 +178,10 @@ public class SettingsFragment extends Fragment {
      * update user settings in firebase database
      */
     private void updateUserSettings(){
-        dbSettings.child(userID).setValue(settings).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    showMessageErrorSnackBar(binding.settingLayout,"Settings updated successfully", false);
-                }else showMessageErrorSnackBar(binding.settingLayout,task.getException().getMessage(), true);
-            }
+        dbSettings.child(userID).setValue(settings).addOnCompleteListener(task -> {
+            if (task.isSuccessful()){
+                showMessageErrorSnackBar(binding.settingLayout,"Settings updated successfully", false);
+            }else showMessageErrorSnackBar(binding.settingLayout, Objects.requireNonNull(task.getException()).getMessage(), true);
         });
     }
 }

@@ -4,17 +4,14 @@ import static com.pepeta.pinpoint.FunctionalUtil.removeErrorMessage;
 import static com.pepeta.pinpoint.FunctionalUtil.clearFields;
 import static com.pepeta.pinpoint.FunctionalUtil.styleSpan;
 import static com.pepeta.pinpoint.FunctionalUtil.validatePassword;
+import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -25,6 +22,8 @@ import com.pepeta.pinpoint.Settings;
 import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityRegisterBinding;
 import com.pepeta.pinpoint.Constants;
+
+import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity{
     ActivityRegisterBinding binding;
@@ -56,96 +55,43 @@ public class RegisterActivity extends AppCompatActivity{
         } );
     }
     private void registerUser(){
-        String email = binding.etEmail.getText().toString().trim();
-        String fullName=binding.etFullname.getText().toString().trim();
-        String password = binding.etPassword.getText().toString().trim();
-        String confirmPassword = binding.etConfirmPW.getText().toString().trim();
+        //region credentials fields
+        String email = Objects.requireNonNull(binding.etEmail.getText()).toString().trim();
+        String fullName= Objects.requireNonNull(binding.etFullname.getText()).toString().trim();
+        String password = Objects.requireNonNull(binding.etPassword.getText()).toString().trim();
+        String confirmPassword = Objects.requireNonNull(binding.etConfirmPW.getText()).toString().trim();
+        //endregion
         if (validateFields(email,fullName,password,confirmPassword)){
-            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
-                        FirebaseUser firebaseUser = task.getResult().getUser();
-                        User user = new User(fullName,email,password, firebaseUser);
+            mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()){
+                            FirebaseUser firebaseUser = task.getResult().getUser();
+                            assert firebaseUser != null;
+                            User user = new User(fullName,email,password, firebaseUser);
 
-                        dbUsers.child(user.getId()).setValue(user).addOnCompleteListener(
-                                new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task ) {
-                                        if (task.isSuccessful()){
+                            dbUsers.child(user.getId()).setValue(user).addOnCompleteListener(
+                                    task1 -> {
+                                        if (task1.isSuccessful()){
                                             clearFields(binding.etFullname, binding.etEmail,binding.etPassword,binding.etConfirmPW);
                                             createUserSettings(user.getId());
-                                            FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,"Registeration successfull!",false);
+                                            FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,
+                                                    "Registeration successfull!",false);
                                         }else{
                                             //if registration unsuccessful
-                                            FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,task.getException().getMessage(), true);
+                                            FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,
+                                                    Objects.requireNonNull(task1.getException()).getMessage(), true);
                                         }
                                     }
-                                }
-                        );
-                        mAuth.signOut();
-                    }else {
-                        //if registration unsuccessful
-                        FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,task.getException().getMessage(), true);
-                        Log.d("REGERROR","Registeration Error"+task.getException().getMessage());
-                    }
-                }
-            });
+                            );
+                            mAuth.signOut();
+                        }else {
+                            //if registration unsuccessful
+                            showMessageErrorSnackBar(binding.registerLayout,
+                                    Objects.requireNonNull(task.getException()).getMessage(), true);
+                            Log.d("REGERROR","Registeration Error"+task.getException().getMessage());
+                        }
+                    });
         }
     }
-
-
-    /**
-     * validates the password entered by the user
-     * @param password - users potential password
-     * @return - true if password given is valid and false if not
-     */
-    /*private boolean validatePassword(String password, TextInputEditText etPassword){
-        if (password.isEmpty()){
-            etPassword.setError("Password required");
-            etPassword.requestFocus();
-            return false;
-        }else{
-            removeErrorMessage(binding.etPassword);
-        }
-        if (Constants.PASSWORD_DIGIT_PATTERN.matcher(password).matches()){
-            etPassword.setError(getString(R.string.password_numeric_error));
-            etPassword.requestFocus();
-            return false;
-        }else {
-            removeErrorMessage(binding.etPassword);
-        }
-        if (Constants.PASSWORD_LOWER_CASE_PATTERN.matcher(password).matches()){
-            etPassword.setError(getString(R.string.password_lowercase_error));
-            etPassword.requestFocus();
-            return false;
-        }else {
-            removeErrorMessage(binding.etPassword);
-        }
-        if (Constants.PASSWORD_UPPER_CASE_PATTERN.matcher(password).matches()){
-            etPassword.setError(getString(R.string.password_uppercase_error));
-            etPassword.requestFocus();
-            return false;
-        }else {
-            removeErrorMessage(binding.etPassword);
-        }
-        if (Constants.PASSWORD_SPECIAL_CHAR_PATTERN.matcher(password).matches()){
-            etPassword.setError(getString(R.string.password_special_char_error));
-            etPassword.requestFocus();
-            return false;
-        }else {
-            removeErrorMessage(binding.etPassword);
-        }
-        if (Constants.PASSWORD_LENGTH_PATTERN.matcher(password).matches()){
-            etPassword.setError(getString(R.string.password_length_error));
-            etPassword.requestFocus();
-            return false;
-        }else {
-            removeErrorMessage(binding.etPassword);
-        }
-        return true;
-    }
-*/
 
     /**
      * validate whether values user entered in the edit texts are valid or not

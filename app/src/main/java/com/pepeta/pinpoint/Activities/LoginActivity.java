@@ -9,8 +9,6 @@ import static com.pepeta.pinpoint.Constants.PERMISSION_REQUEST_ENABLE_GPS;
 import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
 import static com.pepeta.pinpoint.FunctionalUtil.styleSpan;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -19,11 +17,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
@@ -33,39 +29,27 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.pepeta.pinpoint.Constants;
 import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityLoginBinding;
 
+import java.util.Objects;
+
 public class LoginActivity extends AppCompatActivity {
     ActivityLoginBinding binding;
     private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
-    private DatabaseReference dbReference;
-
-    private DatabaseReference dbUsers;
-    private Activity activity;
     User user = new User();
     private boolean mLocationPermissionGranted = false;
 
     ActivityResultLauncher<Intent> enableGpsLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == PERMISSION_REQUEST_ENABLE_GPS){
-                        if (mLocationPermissionGranted){
-                            navigateToMainActivity();
-                        }else getLocationPermission();
-                    }
+            result -> {
+                if (result.getResultCode() == PERMISSION_REQUEST_ENABLE_GPS){
+                    if (mLocationPermissionGranted){
+                        navigateToMainActivity();
+                    }else getLocationPermission();
                 }
             });
 
@@ -84,12 +68,7 @@ public class LoginActivity extends AppCompatActivity {
         styleSpan(binding.tvRegisterPrompt,RegisterActivity.class);
 
         mAuth = FirebaseAuth.getInstance();
-        binding.btnLogin.setOnClickListener(v->{
-            database =FirebaseDatabase.getInstance();
-            dbReference = database.getReference();
-            dbUsers= dbReference.child(Constants.NODE_USERS);
-            loginUser();
-        });
+        binding.btnLogin.setOnClickListener(v->loginUser());
     }
 
     /*@Override
@@ -105,37 +84,33 @@ public class LoginActivity extends AppCompatActivity {
     }*/
 
     private void loginUser() {
-        String email = binding.etEmail.getText().toString().trim();
-        String password = binding.etPassword.getText().toString().trim();
+        String email = Objects.requireNonNull(binding.etEmail.getText()).toString().trim();
+        String password = Objects.requireNonNull(binding.etPassword.getText()).toString().trim();
 
         if (validateFields(email,password)){
-            mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()){
-                        FirebaseUser firebaseUser = task.getResult().getUser();
-                        user.setId(firebaseUser.getUid());
+            mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
+                if (task.isSuccessful()){
+                    FirebaseUser firebaseUser = task.getResult().getUser();
 
-                        if(checkMapServices()){
-                            if (mLocationPermissionGranted){
-                                navigateToMainActivity();
-                            }else getLocationPermission();
-                        }
+                    assert firebaseUser != null;
+                    user.setId(firebaseUser.getUid());
 
-                    }else{
-                        showMessageErrorSnackBar(binding.loginLayout,task.getException().getMessage(),true);
+                    if(checkMapServices()){
+                        if (mLocationPermissionGranted){
+                            navigateToMainActivity();
+                        }else getLocationPermission();
                     }
+
+                }else{
+                    showMessageErrorSnackBar(binding.loginLayout,
+                            Objects.requireNonNull(task.getException()).getMessage(),true);
                 }
             });
         }
     }
 
     private boolean checkMapServices() {
-        if (isServiceOK()){
-            if(isMapsEnabled()) {
-                return true;
-            }
-        }
+        if (isServiceOK()) return isMapsEnabled();
         return false;
     }
 
@@ -159,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Determine if user has google play services
-     * @return
+     * @return whether the play service is okay.
      */
     public boolean isServiceOK(){
         Log.d(TAG, "isServiceOK: checking google service version");
@@ -170,6 +145,7 @@ public class LoginActivity extends AppCompatActivity {
         }else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
             Log.d(TAG, "isServiceOK: an error occured but we can fix it");
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(LoginActivity.this,available, ERROR_DIALOG_REQUEST);
+            assert dialog != null;
             dialog.show();
         }else{
             showMessageErrorSnackBar(binding.loginLayout,"You can't make map requests",true);
@@ -201,7 +177,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Determine whether GPS is enabled
-     * @return
+     * @return whether google maps is enabled or not
      */
     public boolean isMapsEnabled(){
         final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -219,13 +195,10 @@ public class LoginActivity extends AppCompatActivity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent enableGpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        enableGpsLauncher.launch(enableGpsIntent);
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    Intent enableGpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    enableGpsLauncher.launch(enableGpsIntent);
 //                        startActivityForResult(enableGpsIntent,PERMISSION_REQUEST_ENABLE_GPS);
-                    }
                 });
         final  AlertDialog alert = builder.create();
         alert.show();
@@ -235,18 +208,16 @@ public class LoginActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         mLocationPermissionGranted=false;
-        switch (requestCode){
-            case LOCATION_PERMISSION_REQUEST_CODE:{
-                if (grantResults.length>0){
-                    for (int grantResult: grantResults) {
-                        if (grantResult!=PackageManager.PERMISSION_GRANTED){
-                            mLocationPermissionGranted=false;
-                            return;
-                        }
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0) {
+                for (int grantResult : grantResults) {
+                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                        mLocationPermissionGranted = false;
+                        return;
                     }
-                    mLocationPermissionGranted=true;
-                    //initial
                 }
+                mLocationPermissionGranted = true;
+                //initial
             }
         }
     }

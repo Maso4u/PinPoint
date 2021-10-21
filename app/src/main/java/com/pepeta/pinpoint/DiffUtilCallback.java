@@ -7,8 +7,8 @@ import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 import java.util.List;
 
 public class DiffUtilCallback extends DiffUtil.Callback {
-    private List<DetailsModel> oldList;
-    private List<DetailsModel> newList;
+    private final List<DetailsModel> oldList;
+    private final List<DetailsModel> newList;
 
     public DiffUtilCallback(List<DetailsModel> oldList, List<DetailsModel> newList) {
         this.oldList = oldList;

@@ -3,7 +3,6 @@ package com.pepeta.pinpoint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.gms.location.places.Place;
 import com.google.firebase.database.Exclude;
 
 public class Settings implements Parcelable {
@@ -32,8 +31,12 @@ public class Settings implements Parcelable {
             this.keywords = keywords;
         }
     }
-    String PreferredLandMarkType;
-    String PreferredMeasuringUnitType;
+
+    String preferredLandMarkType;
+    String preferredMeasuringUnitType;
+    String mode;
+    String radius;
+
     @Exclude
     PlaceFilter placeFilter;
 
@@ -42,36 +45,48 @@ public class Settings implements Parcelable {
 
     //region GETTERS AND SETTERS
     public String getPreferredLandMarkType() {
-        return PreferredLandMarkType;
+        return preferredLandMarkType;
     }
 
     public void setPreferredLandMarkType(String preferredLandMarkType) {
-        PreferredLandMarkType = preferredLandMarkType;
-        if (PreferredLandMarkType.equals("Natural")) placeFilter=PlaceFilter.NATURAL;
-        else if (PreferredLandMarkType.equals("Purpose built/Man-made")) placeFilter= PlaceFilter.PURPOSE_BUILT;
-        else if (PreferredLandMarkType.equals("Sports")) placeFilter = PlaceFilter.SPORTS;
-        else if (PreferredLandMarkType.equals("Events")) placeFilter = PlaceFilter.EVENTS;
+        this.preferredLandMarkType = preferredLandMarkType;
+        if (this.preferredLandMarkType.equals("Natural")) placeFilter=PlaceFilter.NATURAL;
+        else if (this.preferredLandMarkType.equals("Purpose built/Man-made")) placeFilter= PlaceFilter.PURPOSE_BUILT;
+        else if (this.preferredLandMarkType.equals("Sports")) placeFilter = PlaceFilter.SPORTS;
+        else if (this.preferredLandMarkType.equals("Events")) placeFilter = PlaceFilter.EVENTS;
     }
 
     public String getPreferredMeasuringUnitType() {
-        return PreferredMeasuringUnitType;
+        return preferredMeasuringUnitType;
     }
 
     public void setPreferredMeasuringUnitType(String preferredMeasuringUnitType) {
-        PreferredMeasuringUnitType = preferredMeasuringUnitType;
+        this.preferredMeasuringUnitType = preferredMeasuringUnitType;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getRadius() {
+        return radius;
+    }
+
+    public void setRadius(String radius) {
+        this.radius = radius;
     }
 
     public PlaceFilter getPlaceFilter(){return placeFilter;}
-  /*  <item>Natural</item>
-    <item>Purpose built/Man-made</item>
-        <item>Sports</item>
-        <item>Events</item>*/
     //endregion
 
     //region Parcelable implementation
     protected Settings(Parcel in) {
-        PreferredLandMarkType = in.readString();
-        PreferredMeasuringUnitType = in.readString();
+        preferredLandMarkType = in.readString();
+        preferredMeasuringUnitType = in.readString();
     }
 
     public static final Creator<Settings> CREATOR = new Creator<Settings>() {
@@ -92,8 +107,8 @@ public class Settings implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(PreferredLandMarkType);
-        dest.writeString(PreferredMeasuringUnitType);
+        dest.writeString(preferredLandMarkType);
+        dest.writeString(preferredMeasuringUnitType);
     }
     //endregion
 

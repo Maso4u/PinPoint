@@ -31,10 +31,11 @@ xmlns:tools="http://schemas.android.com/tools"
             android:layout_height="39.5dp"
             android:layout_marginStart="315dp"
             android:layout_marginTop="11dp"
-            android:alpha="0.58"
+            android:alpha="0.6"
             android:background="@drawable/navigation_button_style"
             android:button="@android:color/transparent"
-            android:elevation="10dp" />
+            android:elevation="10dp"
+            android:visibility="gone"/>
     </RelativeLayout>
 
 </LinearLayout>

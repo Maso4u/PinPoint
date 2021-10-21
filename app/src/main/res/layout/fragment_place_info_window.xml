@@ -161,24 +161,28 @@
 
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/place_property_margin">
-
             <TextView
-                android:id="@+id/tvDistanceTitle"
+                android:id="@+id/tvDistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
                 android:text="@string/distance_text"
                 android:textColor="@color/text_black"
                 android:textSize="@dimen/normal_text_size" />
-
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/place_property_margin">
             <TextView
-                android:id="@+id/tvDistance"
+                android:id="@+id/tvDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
+                android:text="@string/eta_text"
                 android:textColor="@color/text_black"
                 android:textSize="@dimen/normal_text_size" />
         </LinearLayout>

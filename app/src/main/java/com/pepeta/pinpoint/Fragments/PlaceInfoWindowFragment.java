@@ -9,7 +9,6 @@ import android.os.Bundle;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.pepeta.pinpoint.FunctionalUtil;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -20,15 +19,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.pepeta.pinpoint.Constants;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.databinding.FragmentPlaceInfoWindowBinding;
+
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,30 +38,25 @@ public class PlaceInfoWindowFragment extends Fragment {
     SwipeListener swipeListener;
 
     //region ARG KEY CONSTANTS
-    private static final String ARG_NAME = "title";
-    private static final String ARG_ADDRESS = "address";
-    private static final String ARG_WEBSITE = "website";
-    private static final String ARG_CONTACT_NUMBER = "contactNumber";
-    private static final String ARG_RATING = "rating";
+//    private static final String ARG_NAME = "title";
+//    private static final String ARG_ADDRESS = "address";
+//    private static final String ARG_WEBSITE = "website";
+//    private static final String ARG_CONTACT_NUMBER = "contactNumber";
+//    private static final String ARG_RATING = "rating";
     private static final String ARG_DETAILS = "details";
     private static final String ARG_USER_ID = "userID";
     //endregion
 
     //region ARGUMENTS FIELDS
-    private String Name;
-    private String Address;
-    private String Website;
-    private String Distance;
-    private String Rating;
-    private String contactNumber;
+//    private String Name;
+//    private String Address;
+//    private String Website;
+//    private String Distance;
+//    private String Rating;
+//    private String contactNumber;
     private String userId;
     private DetailsModel details;
     //endregion
-
-    //region FIREBASE DATABASE AND REFERENCES
-    private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
-    private DatabaseReference dbReference;
     private DatabaseReference dbFavourites;
     //endregion
 
@@ -97,55 +90,41 @@ public class PlaceInfoWindowFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentPlaceInfoWindowBinding.inflate(inflater,container,false);
 
         if (details!=null){
-            /**
-             * Initializes firebase database reference fields
-             */
-            mAuth = FirebaseAuth.getInstance();
-            database = FirebaseDatabase.getInstance();
-            dbReference = database.getReference();
+            //Initializes firebase database reference fields
+            //region FIREBASE DATABASE AND REFERENCES
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference dbReference = database.getReference();
             dbFavourites= dbReference.child(Constants.NODE_FAVOURITES);
 
-            /**
- * populate textviews with respective data from place details
- */
+            //populate textviews with respective data from place details
             binding.tvPlaceName.setText(details.getName());
             binding.tvPlaceAddress.setText(details.getFormattedAddress());
             binding.tvPlaceWebsiteUrl.setText(details.getWebsite());
             binding.tvRating.setText(String.format(getString(R.string.rating_text),details.getRating()));
-            binding.tvPlaceWebsiteUrl.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(details.getWebsite())));
-                }
-            });
+            binding.tvPlaceWebsiteUrl.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(details.getWebsite()))));
             binding.tvContactNumber.setText(String.format(getString(R.string.contact_number_text),details.getFormattedPhoneNumber()));
 
-            binding.btnAddPlaceToFavourite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (binding.btnAddPlaceToFavourite.isChecked()){
-                        addToFavourites();
-                    }else{
-                        removeFromFavourites();
-                    }
+            binding.btnAddPlaceToFavourite.setOnClickListener(v -> {
+                if (binding.btnAddPlaceToFavourite.isChecked()){
+                    addToFavourites();
+                }else{
+                    removeFromFavourites();
                 }
             });
 
             isPlaceAFavourite();
             swipeListener = new SwipeListener(binding.infoWindowLayout);
-            binding.btnHideWindow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (getParentFragment() != null){
-                        if (getParentFragment() instanceof MapsFragment){
-                            ((MapsFragment) getParentFragment()).binding.placeInfoFragment.setVisibility(View.GONE);
-                        }
+            binding.btnHideWindow.setOnClickListener(v -> {
+                if (getParentFragment() != null){
+                    if (getParentFragment() instanceof MapsFragment){
+                        ((MapsFragment) getParentFragment()).binding.placeInfoFragment.setVisibility(View.GONE);
+                        ((MapsFragment) getParentFragment()).binding.btnNavigate.setVisibility(View.GONE);
                     }
                 }
             });
@@ -164,7 +143,7 @@ public class PlaceInfoWindowFragment extends Fragment {
                 if (snapshot.exists()){
                     for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
                         String placeID = dataSnapshot.getKey();
-                        if (placeID.equals(details.getPlaceId())) {
+                        if (placeID!=null && placeID.equals(details.getPlaceId())) {
                             binding.btnAddPlaceToFavourite.setChecked(true);
                             break;
                         }
@@ -181,14 +160,11 @@ public class PlaceInfoWindowFragment extends Fragment {
      * Removes clicked place from user's favourites in Firebase
      */
     private void removeFromFavourites() {
-        dbFavourites.child(userId).child(details.getPlaceId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    showMessageErrorSnackBar(binding.infoWindowLayout,"Place successfully removed from Favourites",false);
-                }else{
-                    showMessageErrorSnackBar(binding.infoWindowLayout,task.getException().getMessage(),true);
-                }
+        dbFavourites.child(userId).child(details.getPlaceId()).removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()){
+                showMessageErrorSnackBar(binding.infoWindowLayout,"Place successfully removed from Favourites",false);
+            }else{
+                showMessageErrorSnackBar(binding.infoWindowLayout, Objects.requireNonNull(task.getException()).getMessage(),true);
             }
         });
     }
@@ -197,14 +173,11 @@ public class PlaceInfoWindowFragment extends Fragment {
      * Adds clicked item to user's favourites in Firebase
      */
     private void addToFavourites() {
-        dbFavourites.child(userId).child(details.getPlaceId()).setValue(details.getPlaceId()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()){
-                    showMessageErrorSnackBar(binding.infoWindowLayout, "Place successfully added to Favourites",false);
-                }else{
-                    showMessageErrorSnackBar(binding.infoWindowLayout, "Attempt to Favourite this place unsuccessful",true);
-                }
+        dbFavourites.child(userId).child(details.getPlaceId()).setValue(details.getPlaceId()).addOnCompleteListener(task -> {
+            if (task.isSuccessful()){
+                showMessageErrorSnackBar(binding.infoWindowLayout, "Place successfully added to Favourites",false);
+            }else{
+                showMessageErrorSnackBar(binding.infoWindowLayout, "Attempt to Favourite this place unsuccessful",true);
             }
         });
     }
