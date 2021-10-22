@@ -2,9 +2,12 @@ package com.pepeta.pinpoint.Model.PlaceDetails;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 import java.util.List;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.pepeta.pinpoint.Model.NearByPlaces.GeometryModel;
@@ -234,6 +237,24 @@ public class DetailsModel implements Parcelable {
     public DetailsModel() {
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj){
+            return true;
+        }
+        if (obj == null || this.getClass()!=obj.getClass()){
+            return false;
+        }
+        DetailsModel detailsModel =(DetailsModel) obj;
+//        LatLng objLatLng = new LatLng(detailsModel.geometry.getLocation().getLat(),
+//                detailsModel.geometry.getLocation().getLng());
+//        LatLng thisLatLng = new LatLng(this.geometry.getLocation().getLat(),
+//                this.geometry.getLocation().getLng());
+
+        return this.getPlaceId().equals(detailsModel.getPlaceId());
+    }
+
+    //region PARCELABLE IMPLEMENTATION
     protected DetailsModel(Parcel in) {
         adrAddress = in.readString();
         businessStatus = in.readString();
@@ -325,4 +346,5 @@ public class DetailsModel implements Parcelable {
         dest.writeString(vicinity);
         dest.writeString(website);
     }
+    //endregion
 }

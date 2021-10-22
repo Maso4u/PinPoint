@@ -1,4 +1,7 @@
 package com.pepeta.pinpoint.Model.Directions;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 public class Route
 {
@@ -7,6 +10,8 @@ public class Route
 
     private List<Legs> legs;
 
+    @SerializedName("overview_polyline")
+    @Expose
     private OverviewPolyline overviewPolyline;
 
     private String summary;

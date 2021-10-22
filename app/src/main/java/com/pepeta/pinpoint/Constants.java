@@ -27,5 +27,7 @@ public class Constants {
     //static final Pattern PASSWORD_NO_WHITESPACE_PATTERN=Pattern.compile("(?=\\S+$)");
     static final Pattern PASSWORD_LENGTH_PATTERN=Pattern.compile(".{6,}");
 
+    public static final Integer[] PREFERRED_RADIUS = new Integer[]{1000,2000,3000,4000,5000,6000,7000};
+
 
 }

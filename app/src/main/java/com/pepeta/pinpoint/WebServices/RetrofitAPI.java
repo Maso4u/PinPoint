@@ -26,10 +26,11 @@ public interface RetrofitAPI {
             @Query("key") String apiKey
     );
 
-    @GET("/maps/api/place/details/json")
-    Single<Result> getDirection(
+    @GET("/maps/api/directions/json")
+    Observable<Result> getDirection(
+            @Query("units") String units,
             @Query("mode") String mode,
-            @Query("transit_routing_preference") String preference,
+            @Query("transit_routing_preference") String transitRoutingPreference,
             @Query("origin") String origin,
             @Query("destination") String destination,
             @Query("key") String apiKey

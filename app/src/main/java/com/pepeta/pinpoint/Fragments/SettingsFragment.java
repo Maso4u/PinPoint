@@ -1,6 +1,7 @@
 package com.pepeta.pinpoint.Fragments;
 
 import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
+import static com.pepeta.pinpoint.Constants.*;
 
 import android.os.Bundle;
 
@@ -37,11 +38,12 @@ public class SettingsFragment extends Fragment {
     //region DROP DOWN ADAPTER DECLERATIONS
     ArrayAdapter<String> preferredUnitsAdapterItems;
     ArrayAdapter<String> preferredLandMarksAdapterItems;
-    ArrayAdapter<String> preferredRadiusesAdapterItems;
+    ArrayAdapter<Integer> preferredRadiusesAdapterItems;
     ArrayAdapter<String> preferredTransportmodesAdapterItems;
     //endregion
 
-    String[] measuringUnits, preferredLandMarks,preferredRadiuses, preferredTransportmodes;
+    String[] measuringUnits, preferredLandMarks, preferredTransportmodes;
+//    final Integer[] preferredRadiuses;
     Settings settings;
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -95,8 +97,8 @@ public class SettingsFragment extends Fragment {
             //endregion
 
             //region SET RADIUSES
-            preferredRadiuses = getResources().getStringArray(R.array.preferred_radius);
-            preferredRadiusesAdapterItems = new ArrayAdapter<>(getContext(),R.layout.settings_list_item,preferredRadiuses);
+            preferredRadiusesAdapterItems = new ArrayAdapter<>(getContext(),
+                    R.layout.settings_list_item,PREFERRED_RADIUS);
             binding.tvPreferredSearchRadius.setAdapter(preferredRadiusesAdapterItems);
             //endregion
 
@@ -115,7 +117,7 @@ public class SettingsFragment extends Fragment {
                 ){
                     settings.setPreferredLandMarkType(binding.tvPreferredLandMarkList.getText().toString());
                     settings.setPreferredMeasuringUnitType(binding.tvPreferredUnitTypeList.getText().toString());
-                    settings.setRadius(binding.tvPreferredSearchRadius.getText().toString());
+                    settings.setRadius(Integer.parseInt(binding.tvPreferredSearchRadius.getText().toString()));
                     settings.setMode(binding.tvPreferredMode.getText().toString());
                     updateUserSettings();
                 }
@@ -153,13 +155,14 @@ public class SettingsFragment extends Fragment {
                             settings.setMode(Objects.requireNonNull(settingsSnapshot.getValue()).toString());
                         }
                         if (settingsSnapshot.getKey().equals("radius")){
-                            settings.setRadius(Objects.requireNonNull(settingsSnapshot.getValue()).toString());
+                            settings.setRadius(Integer.parseInt(Objects.requireNonNull(settingsSnapshot.getValue()).toString()));
                         }
                     }
+
                     binding.tvPreferredUnitTypeList.setText(settings.getPreferredMeasuringUnitType(),false);
                     binding.tvPreferredLandMarkList.setText(settings.getPreferredLandMarkType(),false);
                     binding.tvPreferredMode.setText(settings.getMode(),false);
-                    binding.tvPreferredSearchRadius.setText(settings.getRadius(),false);
+                    binding.tvPreferredSearchRadius.setText(Integer.toString(settings.getRadius()),false);
                 }else{
 
                     binding.tvPreferredUnitTypeList.setSelection(0);

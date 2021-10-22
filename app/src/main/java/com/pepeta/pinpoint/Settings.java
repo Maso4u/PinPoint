@@ -35,7 +35,7 @@ public class Settings implements Parcelable {
     String preferredLandMarkType;
     String preferredMeasuringUnitType;
     String mode;
-    String radius;
+    int radius;
 
     @Exclude
     PlaceFilter placeFilter;
@@ -72,11 +72,11 @@ public class Settings implements Parcelable {
         this.mode = mode;
     }
 
-    public String getRadius() {
+    public int getRadius() {
         return radius;
     }
 
-    public void setRadius(String radius) {
+    public void setRadius(int radius) {
         this.radius = radius;
     }
 

@@ -13,8 +13,8 @@
     <string name="location_name">Location name</string>
 
     <string-array name="unit_types">
-        <item>Metric</item>
-        <item>Imperial</item>
+        <item>metric</item>
+        <item>imperial</item>
     </string-array>
     <string-array name="preferred_landmark">
         <item>Natural</item>
@@ -30,13 +30,13 @@
         <item>TRANSIT</item>
     </string-array>
 
-    <string-array name="preferred_radius">
+    <!--<integer-array name="preferred_radius">
         <item>1000</item>
         <item>2000</item>
         <item>3000</item>
         <item>4000</item>
         <item>5000</item>
-    </string-array>
+    </integer-array>-->
 
     <!--    Account strings-->
     <string name="login">Login</string>
@@ -73,7 +73,7 @@
     <string name="globe_icon">globe icon for website</string>
     <string name="rating_text">Rating: %1$.2f/5</string>
     <string name="distance_text">Distance: %1$s</string>
-    <string name="eta_text">Duration: %1$s</string>
+    <string name="duration_text">Duration: %1$s</string>
     <string name="contact_number_text">Contact Number: %1$s</string>
     <string name="hours">Hours: %1$s · %2$s - %3$s</string>
     <string name="hours_unavailable">Hours: Unavailable</string>

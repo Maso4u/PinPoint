@@ -38,23 +38,16 @@ public class PlaceInfoWindowFragment extends Fragment {
     SwipeListener swipeListener;
 
     //region ARG KEY CONSTANTS
-//    private static final String ARG_NAME = "title";
-//    private static final String ARG_ADDRESS = "address";
-//    private static final String ARG_WEBSITE = "website";
-//    private static final String ARG_CONTACT_NUMBER = "contactNumber";
-//    private static final String ARG_RATING = "rating";
     private static final String ARG_DETAILS = "details";
     private static final String ARG_USER_ID = "userID";
+    private static final String ARG_DISTANCE = "distance" ;
+    private static final String ARG_DURATION = "duration";
     //endregion
 
     //region ARGUMENTS FIELDS
-//    private String Name;
-//    private String Address;
-//    private String Website;
-//    private String Distance;
-//    private String Rating;
-//    private String contactNumber;
     private String userId;
+    private String distance;
+    private String duration;
     private DetailsModel details;
     //endregion
     private DatabaseReference dbFavourites;
@@ -79,12 +72,23 @@ public class PlaceInfoWindowFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
+    public static PlaceInfoWindowFragment newInstance(DetailsModel detailsModel, String userID, String distance, String duration) {
+        PlaceInfoWindowFragment fragment = new PlaceInfoWindowFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_USER_ID,userID);
+        args.putString(ARG_DISTANCE,distance);
+        args.putString(ARG_DURATION,duration);
+        args.putParcelable(ARG_DETAILS,detailsModel);
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             userId = getArguments().getString(ARG_USER_ID);
+            distance =getArguments().getString(ARG_DISTANCE);
+            duration =getArguments().getString(ARG_DURATION);
             details = getArguments().getParcelable(ARG_DETAILS);
         }
     }
@@ -109,6 +113,17 @@ public class PlaceInfoWindowFragment extends Fragment {
             binding.tvRating.setText(String.format(getString(R.string.rating_text),details.getRating()));
             binding.tvPlaceWebsiteUrl.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(details.getWebsite()))));
             binding.tvContactNumber.setText(String.format(getString(R.string.contact_number_text),details.getFormattedPhoneNumber()));
+            if (duration!=null){
+                binding.tvDuration.setText(String.format(getString(R.string.duration_text),duration));
+            }else{
+                binding.tvDuration.setText(String.format(getString(R.string.duration_text),"--"));
+            }
+            if (distance!=null){
+                binding.tvDistance.setText(String.format(getString(R.string.distance_text),distance));
+            }else{
+                binding.tvDistance.setText(String.format(getString(R.string.distance_text),"--"));
+            }
+
 
             binding.btnAddPlaceToFavourite.setOnClickListener(v -> {
                 if (binding.btnAddPlaceToFavourite.isChecked()){

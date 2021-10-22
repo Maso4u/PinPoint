@@ -2,6 +2,7 @@ package com.pepeta.pinpoint.Fragments;
 
 import static android.content.ContentValues.TAG;
 import static com.pepeta.pinpoint.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.pepeta.pinpoint.Constants.PREFERRED_RADIUS;
 import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
 
 import androidx.annotation.NonNull;
@@ -39,9 +40,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
 import com.pepeta.pinpoint.BuildConfig;
 import com.pepeta.pinpoint.Constants;
-import com.pepeta.pinpoint.Model.Directions.Result;
 import com.pepeta.pinpoint.Model.Directions.Route;
 import com.pepeta.pinpoint.Model.NearByPlaces.GoogleNearbyPlaceModel;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
@@ -57,10 +58,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 
@@ -70,6 +69,7 @@ public class MapsFragment extends Fragment {
     FusedLocationProviderClient mFusedLocationProviderClient;
 //    String placeAddress;
     Location currentLocation;
+    LatLng currentLatLng;
     GoogleMap mGoogleMap;
     DetailsModel mClickedPlace;
     String userID;
@@ -83,6 +83,8 @@ public class MapsFragment extends Fragment {
     private String placeType;
     private String[] keywords;
     private static final String ARG_USER_ID = "userID";
+    String distance;
+    String duration;
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         /**
@@ -99,6 +101,7 @@ public class MapsFragment extends Fragment {
             mGoogleMap = googleMap;
             mGoogleMap.setOnMarkerClickListener(marker -> {
                 getClickedPlace(marker);
+                binding.btnNavigate.setChecked(false);
                 return true;
             });
             mFusedLocationProviderClient = LocationServices
@@ -111,10 +114,9 @@ public class MapsFragment extends Fragment {
                         googleMap.setMyLocationEnabled(true);
                         getUserSettings();
                         if (currentLocation!=null){
-                            moveCamera(
-                                    new LatLng(currentLocation.getLatitude(),
-                                            currentLocation.getLongitude()),
-                                    googleMap);
+                            currentLatLng = new LatLng(currentLocation.getLatitude(),
+                                    currentLocation.getLongitude());
+                            moveCamera(currentLatLng,googleMap);
                         }
 
                     } else {
@@ -178,12 +180,6 @@ public class MapsFragment extends Fragment {
 
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
-            binding.btnNavigate.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (mClickedPlace!=null){
-                    if (isChecked) getDirection();
-                    else polylineList.clear();
-                }
-            });
         }
     }
 
@@ -237,6 +233,15 @@ public class MapsFragment extends Fragment {
         }
         binding.mapView.onCreate(mapViewBundle);
         binding.mapView.getMapAsync(callback);
+        mClickedPlace = new DetailsModel();
+        binding.btnNavigate.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (mClickedPlace!=null){
+                if (isChecked){
+                    getDirection();
+                }
+                else getPlaces();
+            }
+        });
     }
 
     /**
@@ -270,11 +275,15 @@ public class MapsFragment extends Fragment {
                                     keywords= Settings.PlaceFilter.NATURAL.getKeywords();
                                     break;
                             }
-                            getPlaces();
                         }
                         if(Objects.equals(settingsSnapshot.getKey(),"preferredMeasuringUnitType")) settings.setPreferredMeasuringUnitType(setting);
                         if (settingsSnapshot.getKey().equals("mode")) settings.setMode(setting);
-                        if (settingsSnapshot.getKey().equals("radius")) settings.setRadius(setting);
+                        if (settingsSnapshot.getKey().equals("radius")) settings.setRadius(Integer.parseInt(setting));
+
+                        getPlaces();
+                    }
+                    if (settings.getRadius()<0){
+                        settings.setRadius(PREFERRED_RADIUS[0]);
                     }
                 }
             }
@@ -307,23 +316,26 @@ public class MapsFragment extends Fragment {
      * retrieve google places from API
      */
     private void getPlaces(){
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        String strCurrentLocation = latLng.latitude+","+latLng.longitude;
+        String strCurrentLocation = currentLatLng.latitude+","+currentLatLng.longitude;
         // Make the call using Retrofit and RxJava
         if (keywords!=null){
             for (String keyword: keywords) {
-                int radius = 6000;
                 compositeDisposable.add(
                         googleMapsService.getNearByPlaces(
                                 keyword,
                                 strCurrentLocation,
-                                radius,
+                                settings.getRadius(),
                                 placeType,
                                 BuildConfig.MAPS_API_KEY)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
-                                        GooglePlacesModel -> showPlaces(GooglePlacesModel.getPlaceModels()),
+                                        GooglePlacesModel ->{
+                                            if (GooglePlacesModel.getPlaceModels()!=null){
+                                                googleNearbyPlaceModelList.addAll(GooglePlacesModel.getPlaceModels());
+                                                showPlaces();
+                                            }
+                                        },
                                         throwable -> Log.d("MYERROR", "accept: " + throwable.getMessage())
                                 )
                 );
@@ -333,11 +345,9 @@ public class MapsFragment extends Fragment {
 
     /**
      * displays google places found from the api
-     * @param googleNearbyPlaceModels list of places found from API call
      */
-    private void showPlaces(List<GoogleNearbyPlaceModel> googleNearbyPlaceModels) {
-        if (googleNearbyPlaceModels.size()>0){
-            googleNearbyPlaceModelList.addAll(googleNearbyPlaceModels);
+    private void showPlaces() {
+        if (googleNearbyPlaceModelList.size()>0){
             Set<GoogleNearbyPlaceModel> placeModelSet = new HashSet<>(googleNearbyPlaceModelList);
             googleNearbyPlaceModelList = new ArrayList<>(placeModelSet);
             mGoogleMap.clear();
@@ -413,36 +423,41 @@ public class MapsFragment extends Fragment {
      * @param placeDetailsModel place to display details for
      */
     private void displayDetailsWindow(DetailsModel placeDetailsModel){
-        mClickedPlace = placeDetailsModel;
-        if (mClickedPlace!=null){
+        if (!placeDetailsModel.equals(mClickedPlace)){
+            mClickedPlace = placeDetailsModel;
             placeInfoWindow=PlaceInfoWindowFragment.newInstance(mClickedPlace,userID);
-            getChildFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.placeInfoFragment, placeInfoWindow).commit();
-
-            binding.placeInfoFragment.setVisibility(View.VISIBLE);
-            binding.btnNavigate.setVisibility(View.VISIBLE);
+        }else{
+            placeInfoWindow = PlaceInfoWindowFragment
+                    .newInstance(mClickedPlace,userID,distance,duration);
         }
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.placeInfoFragment, placeInfoWindow).commit();
+        binding.placeInfoFragment.setVisibility(View.VISIBLE);
+        binding.btnNavigate.setVisibility(View.VISIBLE);
     }
 
     /**
      * gets directions to current clicked location
      */
     private void getDirection() {
-        googleMapsService.getDirection(
-                "driving",
-                "less_driving",
-                currentLocation.getLatitude()+","+currentLocation.getLongitude(),
-                mClickedPlace.getFormattedAddress(),
-                BuildConfig.MAPS_API_KEY)
+        String origin = currentLatLng.latitude+","+currentLatLng.longitude;
+        String placeID = String.format("place_id:%1$s",mClickedPlace.getPlaceId());
+        compositeDisposable.add(
+                googleMapsService.getDirection(
+                        settings.getPreferredMeasuringUnitType(),
+                        settings.getMode(),
+                        "less_walking",
+                        origin,
+                        placeID,
+                        BuildConfig.MAPS_API_KEY)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Result>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {}
-
-                    @Override
-                    public void onSuccess(@NonNull Result result) {
+                .subscribe(result -> {
+                    //if there are routes found
+                    if (result.getRouteList()!=null){
+                        //mGoogleMap.clear();
+                        showPlaces();
                         polylineList = new ArrayList<>();
                         List<Route> routeList = result.getRouteList();
 
@@ -452,16 +467,14 @@ public class MapsFragment extends Fragment {
 
                         //region VARIABLES FOR VALUES TO DISPLAY TO USER
                         String polyline;
-                        String distance;
-                        String duration;
                         //endregion
 
                         //Iterate through routes found to find the shortest
                         for (Route route: routeList) {
                             int routeDuration = route.getLegs().get(0).getDuration().getValue();
 
-                            /*compare current route duration with the shortest routeDuration
-                            if current route duration is less then assign it to the shortest route*/
+                    /*compare current route duration with the shortest routeDuration
+                    if current route duration is less then assign it to the shortest route*/
                             if (routeDuration<shortestDuration) shortestRoute = route;
                         }
 
@@ -469,7 +482,8 @@ public class MapsFragment extends Fragment {
                         polyline = shortestRoute.getOverviewPolyline().getPoints();
                         distance = shortestRoute.getLegs().get(0).getDistance().getText();
                         duration = shortestRoute.getLegs().get(0).getDuration().getText();
-                        polylineList.addAll(decodePoly(polyline));
+                        polylineList = PolyUtil.decode(polyline);
+//                            polylineList.addAll(decodePoly(polyline));
                         //endregion
 
                         //region WRITE THE SHORTEST ROUTE'S INFO IN THE INFO WINDOW
@@ -477,20 +491,15 @@ public class MapsFragment extends Fragment {
                                 String.format(getString(R.string.distance_text),
                                         distance));
                         placeInfoWindow.binding.tvDuration.setText(
-                                String.format(getString(R.string.eta_text),
+                                String.format(getString(R.string.duration_text),
                                         duration));
+
                         //endregion
 
                         drawPolylines();
                     }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        //Display error in snackbar
-                        showMessageErrorSnackBar(binding.locationsFragmentLayout,e.getMessage(),true);
-                    }
-                });
-
+                }, throwable -> Log.d("MYERROR", "accept: " + throwable.getMessage()))
+        );
     }
 
     /**
@@ -498,52 +507,20 @@ public class MapsFragment extends Fragment {
      */
     private void drawPolylines() {
         PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(R.color.text_black);
+        int colorPrimary = ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.text_black);
+
+        polylineOptions.color(colorPrimary);
         polylineOptions.width(10);
         polylineOptions.startCap(new ButtCap());
         polylineOptions.jointType(JointType.ROUND);
         polylineOptions.addAll(polylineList);
         mGoogleMap.addPolyline(polylineOptions);
         LatLngBounds.Builder boundBuilder = new LatLngBounds.Builder();
-        boundBuilder.include(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()));
+        boundBuilder.include(currentLatLng);
         boundBuilder.include(new LatLng(mClickedPlace.getGeometry().getLocation().getLat(),
                 mClickedPlace.getGeometry().getLocation().getLng()));
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(boundBuilder.build(),100));
     }
 
-    /**
-     * Decodes directions polylines to be drawn on maps
-     * @param encoded polyline string from api
-     * @return list of LatLng that make-up polylines
-     */
-    private List<LatLng> decodePoly(String encoded){
-        List<LatLng> poly = new ArrayList<>();
-        int index =0, len=encoded.length();
-        int lat=0, lng=0;
-        while (index<len){
-            int b, shift=0,result=0;
-            do {
-                b= encoded.charAt(index++) -63;
-                result |= (b&0x1f) << shift;
-                shift+=5;
-            }while (b>=0x20);
-            int dlat =((result&1)!=0?~(result>>1):(result>>1));
-            lat +=dlat;
-            shift=0;
-            result=0;
-            do{
-                b=encoded.charAt(index++)-63;
-                result|=(b&0x1f)<<shift;
-                shift+= 5;
-            }while (b>=0x1f);
-            int dlng = ((result&1)!=0?~(result>>1):(result>>1));
-            lng+=dlng;
-
-            LatLng p = new LatLng((((double) lat/1E5)),
-                    (((double) lng/1E5)));
-            poly.add(p);
-        }
-        return poly;
-    }
     //endregion
 }
