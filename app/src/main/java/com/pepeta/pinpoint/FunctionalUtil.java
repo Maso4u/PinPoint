@@ -4,6 +4,7 @@ import static androidx.core.content.ContextCompat.getColor;
 
 import static com.pepeta.pinpoint.R.color.*;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
@@ -22,6 +23,8 @@ import com.pepeta.pinpoint.Activities.LoginActivity;
 import com.pepeta.pinpoint.Activities.RegisterActivity;
 
 import java.util.Objects;
+
+import at.favre.lib.crypto.bcrypt.BCrypt;
 
 public class FunctionalUtil {
 
@@ -127,4 +130,7 @@ public class FunctionalUtil {
         return true;
     }
 
+    public static String hashPassword(String password){
+        return BCrypt.withDefaults().hashToString(12,password.toCharArray());
+    }
 }

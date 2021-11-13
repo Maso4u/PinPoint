@@ -41,6 +41,11 @@ public class DetailsModel implements Parcelable {
     @SerializedName("name")
     @Expose
     private String name;
+
+    @SerializedName("permanently_closed")
+    @Expose
+    private boolean permanentlyClosed;
+
     @SerializedName("opening_hours")
     @Expose
     private OpeningHoursModel openingHours;
@@ -142,6 +147,15 @@ public class DetailsModel implements Parcelable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+
+    public boolean isPermanentlyClosed() {
+        return permanentlyClosed;
+    }
+
+    public void setPermanentlyClosed(boolean permanentlyClosed) {
+        this.permanentlyClosed = permanentlyClosed;
     }
 
     public OpeningHoursModel getOpeningHours() {

@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.pepeta.pinpoint.BuildConfig;
 import com.pepeta.pinpoint.Constants;
+import com.pepeta.pinpoint.CustomDialog;
 import com.pepeta.pinpoint.FavouritesRecyclerViewAdapter;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 
@@ -49,6 +50,7 @@ public class FavouritesFragment extends Fragment {
     private final RetrofitAPI googleMapsService;
     FragmentFavouritesBinding binding;
     FavouritesRecyclerViewAdapter favouritesRecyclerViewAdapter;
+    CustomDialog customDialog;
 
     private DatabaseReference dbFavourites;
     private final List<String> placeIdList= new ArrayList<>();
@@ -102,6 +104,7 @@ public class FavouritesFragment extends Fragment {
             DatabaseReference dbReference = database.getReference();
             dbFavourites= dbReference.child(Constants.NODE_FAVOURITES);
             setFavouritePlacesIDList();
+            customDialog = new CustomDialog(getContext());
         }
         return binding.getRoot();
     }
@@ -121,6 +124,7 @@ public class FavouritesFragment extends Fragment {
     private void getUserFavouritePlaces() {
         if (placeIdList.size()>0){
             if (placesList.size()<=0){
+                customDialog.showDialog("attempting to log you in");
                 for (String placeId : placeIdList) {
                     compositeDisposable.add(
                             googleMapsService.getPlaceDetails(
@@ -137,6 +141,7 @@ public class FavouritesFragment extends Fragment {
                                     )
                     );
                 }
+                customDialog.dismissDialog();
             }
         }
     }

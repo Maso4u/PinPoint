@@ -31,6 +31,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.pepeta.pinpoint.CustomDialog;
 import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.User;
 import com.pepeta.pinpoint.databinding.ActivityLoginBinding;
@@ -41,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     ActivityLoginBinding binding;
     private FirebaseAuth mAuth;
     User user = new User();
+    CustomDialog customDialog;
     private boolean mLocationPermissionGranted = false;
 
     ActivityResultLauncher<Intent> enableGpsLauncher = registerForActivityResult(
@@ -69,6 +71,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         binding.btnLogin.setOnClickListener(v->loginUser());
+        customDialog = new CustomDialog(this);
     }
 
     /*@Override
@@ -86,12 +89,13 @@ public class LoginActivity extends AppCompatActivity {
     private void loginUser() {
         String email = Objects.requireNonNull(binding.etEmail.getText()).toString().trim();
         String password = Objects.requireNonNull(binding.etPassword.getText()).toString().trim();
-
+//        CustomDialog CustomDialog = new CustomDialog(LoginActivity.this);
         if (validateFields(email,password)){
+            //String hashedPassword = hashPassword(password);
+            customDialog.showDialog("attempting to log you in");
             mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
                 if (task.isSuccessful()){
                     FirebaseUser firebaseUser = task.getResult().getUser();
-
                     assert firebaseUser != null;
                     user.setId(firebaseUser.getUid());
 
@@ -102,6 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                 }else{
+                    customDialog.dismissDialog();
                     showMessageErrorSnackBar(binding.loginLayout,
                             Objects.requireNonNull(task.getException()).getMessage(),true);
                 }
@@ -211,10 +216,7 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0) {
                 for (int grantResult : grantResults) {
-                    if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                        mLocationPermissionGranted = false;
-                        return;
-                    }
+                    if (grantResult != PackageManager.PERMISSION_GRANTED) return;
                 }
                 mLocationPermissionGranted = true;
                 //initial

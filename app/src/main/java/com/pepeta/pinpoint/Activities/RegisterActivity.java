@@ -1,10 +1,12 @@
 package com.pepeta.pinpoint.Activities;
 
+import static com.pepeta.pinpoint.Constants.PREFERRED_RADIUS;
 import static com.pepeta.pinpoint.FunctionalUtil.removeErrorMessage;
 import static com.pepeta.pinpoint.FunctionalUtil.clearFields;
 import static com.pepeta.pinpoint.FunctionalUtil.styleSpan;
 import static com.pepeta.pinpoint.FunctionalUtil.validatePassword;
 import static com.pepeta.pinpoint.FunctionalUtil.showMessageErrorSnackBar;
+import static com.pepeta.pinpoint.FunctionalUtil.hashPassword;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.pepeta.pinpoint.CustomDialog;
 import com.pepeta.pinpoint.FunctionalUtil;
 import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.Settings;
@@ -32,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity{
     private DatabaseReference dbReference;
     private DatabaseReference dbUsers;
     private DatabaseReference dbSettings;
+    CustomDialog customDialog;
 
     public RegisterActivity() {
     }
@@ -44,6 +48,7 @@ public class RegisterActivity extends AppCompatActivity{
         setContentView(binding.getRoot());
 
         styleSpan(binding.tvLoginPrompt,LoginActivity.class);
+        customDialog = new CustomDialog(this);
 
         mAuth = FirebaseAuth.getInstance();
         binding.btnRegister.setOnClickListener(v ->{
@@ -62,34 +67,45 @@ public class RegisterActivity extends AppCompatActivity{
         String confirmPassword = Objects.requireNonNull(binding.etConfirmPW.getText()).toString().trim();
         //endregion
         if (validateFields(email,fullName,password,confirmPassword)){
+            String finalPassword = hashPassword(password);
+            customDialog.showDialog("attempting to create new account");
             mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()){
+                if (task.isSuccessful()){
                             FirebaseUser firebaseUser = task.getResult().getUser();
                             assert firebaseUser != null;
-                            User user = new User(fullName,email,password, firebaseUser);
-
+                            User user = new User(fullName,email, finalPassword, firebaseUser);
                             dbUsers.child(user.getId()).setValue(user).addOnCompleteListener(
                                     task1 -> {
                                         if (task1.isSuccessful()){
-                                            clearFields(binding.etFullname, binding.etEmail,binding.etPassword,binding.etConfirmPW);
-                                            createUserSettings(user.getId());
-                                            FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,
-                                                    "Registeration successfull!",false);
+                                            clearFields(
+                                                    binding.etFullname,
+                                                    binding.etEmail,
+                                                    binding.etPassword,
+                                                    binding.etConfirmPW);
                                         }else{
+                                            customDialog.dismissDialog();
                                             //if registration unsuccessful
                                             FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,
                                                     Objects.requireNonNull(task1.getException()).getMessage(), true);
                                         }
                                     }
                             );
-                            mAuth.signOut();
-                        }else {
-                            //if registration unsuccessful
-                            showMessageErrorSnackBar(binding.registerLayout,
-                                    Objects.requireNonNull(task.getException()).getMessage(), true);
+                            dbSettings.child(user.getId()).setValue(createUserSettings()).addOnCompleteListener(settingsTask->{
+                                if (settingsTask.isSuccessful()){
+                                    customDialog.dismissDialog();
+                                    FunctionalUtil.showMessageErrorSnackBar(binding.registerLayout,
+                                            "Registeration successfull!",false);
+                                }
+                            });
+                    mAuth.signOut();
+                }else {
+                    //if registration unsuccessful
+                    customDialog.dismissDialog();
+                    showMessageErrorSnackBar(binding.registerLayout,
+                            Objects.requireNonNull(task.getException()).getMessage(), true);
                             Log.d("REGERROR","Registeration Error"+task.getException().getMessage());
-                        }
-                    });
+                }
+            });
         }
     }
 
@@ -136,10 +152,14 @@ public class RegisterActivity extends AppCompatActivity{
         return valid;
     }
 
-    private void createUserSettings(String userID){
+    private Settings createUserSettings(){
         Settings settings = new Settings();
         settings.setPreferredMeasuringUnitType(getResources().getStringArray(R.array.unit_types)[0]);
         settings.setPreferredLandMarkType(getResources().getStringArray(R.array.preferred_landmark)[0]);
-        dbSettings.child(userID).setValue(settings);
+        settings.setRadius(PREFERRED_RADIUS[0]);
+        settings.setMode(getResources().getStringArray(R.array.preferred_transport_mode)[0]);
+
+        return settings;
+        //boolean usersettting = dbSettings.child(userID).setValue(settings).isSuccessful();
     }
 }

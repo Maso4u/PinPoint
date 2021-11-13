@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.pepeta.pinpoint.Constants;
 import com.pepeta.pinpoint.R;
 import com.pepeta.pinpoint.Settings;
+import com.pepeta.pinpoint.CustomDialog;
 import com.pepeta.pinpoint.databinding.FragmentSettingsBinding;
 
 import java.util.Objects;
@@ -34,6 +37,7 @@ public class SettingsFragment extends Fragment {
     FragmentSettingsBinding binding;
 
     private DatabaseReference dbSettings;
+    CustomDialog customDialog;
 
     //region DROP DOWN ADAPTER DECLERATIONS
     ArrayAdapter<String> preferredUnitsAdapterItems;
@@ -122,6 +126,7 @@ public class SettingsFragment extends Fragment {
                     updateUserSettings();
                 }
             });
+            customDialog = new CustomDialog(getContext());
         }
 
         //region turn keyboard input off
@@ -181,10 +186,14 @@ public class SettingsFragment extends Fragment {
      * update user settings in firebase database
      */
     private void updateUserSettings(){
+        customDialog.showDialog("Attempting to update settings.");
         dbSettings.child(userID).setValue(settings).addOnCompleteListener(task -> {
-            if (task.isSuccessful()){
-                showMessageErrorSnackBar(binding.settingLayout,"Settings updated successfully", false);
-            }else showMessageErrorSnackBar(binding.settingLayout, Objects.requireNonNull(task.getException()).getMessage(), true);
+            if (task.isSuccessful()) {
+                customDialog.dismissDialog();
+                showMessageErrorSnackBar(binding.settingLayout, "Settings updated successfully", false);
+            } else {
+                customDialog.showDialog("Attempting to update settings.");
+            }
         });
     }
 }

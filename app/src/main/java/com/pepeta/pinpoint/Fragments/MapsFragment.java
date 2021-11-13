@@ -507,7 +507,7 @@ public class MapsFragment extends Fragment {
      */
     private void drawPolylines() {
         PolylineOptions polylineOptions = new PolylineOptions();
-        int colorPrimary = ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.text_black);
+        int colorPrimary = ContextCompat.getColor(requireContext(), R.color.text_black);
 
         polylineOptions.color(colorPrimary);
         polylineOptions.width(10);

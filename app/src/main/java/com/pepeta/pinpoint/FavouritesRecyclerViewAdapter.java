@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.pepeta.pinpoint.Model.PlaceDetails.DetailsModel;
 import com.pepeta.pinpoint.Model.PlaceDetails.PeriodModel;
 import com.pepeta.pinpoint.databinding.FavouritePlaceRowBinding;
@@ -60,43 +61,59 @@ public class FavouritesRecyclerViewAdapter extends RecyclerView.Adapter<Favourit
             if (details!=null){
                 binding.tvPlaceName.setText(details.getName());
                 binding.tvPlaceAddress.setText(details.getFormattedAddress());
-                binding.tvContactNumber.setText(String.format(binding.getRoot()
-                        .getContext()
-                        .getString(R.string.contact_number_text), details.getFormattedPhoneNumber()));
+                if (details.getFormattedPhoneNumber()==null){
+                    binding.tvContactNumber.setText(binding.getRoot().getContext()
+                            .getString(R.string.unavailable_property));
+                }else{
+                    binding.tvContactNumber.setText(String.format(binding.getRoot()
+                            .getContext()
+                            .getString(R.string.contact_number_text),
+                            details.getFormattedPhoneNumber()));
+                }
+
                 binding.tvRating.setText(String.format(binding.getRoot()
                         .getContext()
                         .getString(R.string.rating_text),details.getRating()));
 
-                if (details.getOpeningHours()!=null){
-                    if (details.getOpeningHours().getOpenNow()){
-                        closeStatus ="Open";
-                        binding.tvHours.setTextColor(binding.getRoot().getContext().getColor(R.color.green));
-                        periodMsg ="Closes";
+                if (!details.isPermanentlyClosed()){
+                    if (details.getOpeningHours()!=null){
+                        if (details.getOpeningHours().getOpenNow()){
+                            closeStatus ="Open";
+                            binding.tvHours.setTextColor(binding.getRoot().getContext().getColor(R.color.green));
+                            periodMsg ="Closes";
 
-                        for (PeriodModel period:details.getOpeningHours().getPeriods()) {
-                            if (period.getClose().getDay()==dayOfWeek) {
-                                closeTime=period.getClose().getTime();
-                                break;
+                            for (PeriodModel period:details.getOpeningHours().getPeriods()) {
+                                if (period.getClose()!=null){
+                                    if (period.getClose().getDay()==dayOfWeek) {
+                                        closeTime=period.getClose().getTime();
+                                        break;
+                                    }
+                                }
+                            }
+                        }else {
+                            closeStatus = "Closed";
+                            periodMsg ="Opens";
+                            binding.tvHours.setTextColor(binding.getRoot().getContext().getColor(R.color.error_red));
+                            for (PeriodModel period:details.getOpeningHours().getPeriods()) {
+                                if (period.getOpen().getDay()==dayOfWeek) {
+                                    closeTime=period.getOpen().getTime();
+                                    break;
+                                }
                             }
                         }
-                    }else {
-                        closeStatus = "Closed";
-                        periodMsg ="Opens";
-                        binding.tvHours.setTextColor(binding.getRoot().getContext().getColor(R.color.error_red));
-                        for (PeriodModel period:details.getOpeningHours().getPeriods()) {
-                            if (period.getOpen().getDay()==dayOfWeek) {
-                                closeTime=period.getOpen().getTime();
-                                break;
+                        if (closeTime != null){
+                            if (!closeTime.isEmpty()){
+                                binding.tvHours.setText(String.format(binding.getRoot()
+                                        .getContext()
+                                        .getString(R.string.hours),closeStatus,periodMsg,formattedTime(closeTime)));
                             }
                         }
-                    }
-                    assert closeTime != null;
-                    if (!closeTime.isEmpty()){
-                        binding.tvHours.setText(String.format(binding.getRoot()
-                                .getContext()
-                                .getString(R.string.hours),closeStatus,periodMsg,formattedTime(closeTime)));
-                    }
-                }else binding.tvHours.setText(R.string.hours_unavailable);
+                    }else binding.tvHours.setText(R.string.hours_unavailable);
+                }else {
+                    binding.tvHours.setText(R.string.permanently_closed);
+                    binding.tvHours.setTextColor(binding.getRoot().getContext().getColor(R.color.error_red));
+                }
+
             }
         }
 

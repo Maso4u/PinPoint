@@ -30,14 +30,6 @@
         <item>TRANSIT</item>
     </string-array>
 
-    <!--<integer-array name="preferred_radius">
-        <item>1000</item>
-        <item>2000</item>
-        <item>3000</item>
-        <item>4000</item>
-        <item>5000</item>
-    </integer-array>-->
-
     <!--    Account strings-->
     <string name="login">Login</string>
     <string name="register">Register</string>
@@ -77,5 +69,8 @@
     <string name="contact_number_text">Contact Number: %1$s</string>
     <string name="hours">Hours: %1$s · %2$s - %3$s</string>
     <string name="hours_unavailable">Hours: Unavailable</string>
+    <string name="permanently_closed">Hours: Permanently Closed</string>
     <string name="preferred_search_radius">Preferred Search Radius (meters)</string>
+    <string name="unavailable_property">--</string>
+    <string name="loading">loading...</string>
 </resources>
